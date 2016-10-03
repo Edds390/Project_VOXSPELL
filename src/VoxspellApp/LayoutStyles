@@ -1,0 +1,54 @@
+/*
+ *layout styles
+ */
+
+.vbox {
+    -fx-background-repeat: no-repeat;
+    -fx-spacing: 15;
+    -fx-padding: 15;
+    /*spacing between buttons */
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.hyperlink {
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.hyperlink:visited {
+    -fx-underline: false;
+}
+
+.hyperlink:hover {
+    -fx-underline: true;
+}
+
+.bargraph {
+    -fx-text-fill: white;
+    -fx-background-color: #e2ecfe;
+    -fx-background-color: transparent;
+    -fx-fill: transparent;
+    -fx-fill: #99bcfd;
+    -fx-stroke: transparent;
+    -fx-stroke-width: 0;
+    -fx-stroke: #3278fa;
+    -fx-stroke: #3278fa;
+    -fx-text-fill: #4682b4;
+    -fx-font-size: 1.6em;
+    -fx-text-fill: #4682b4;
+}
+
+.statslabel {
+    -fx-text-fill: white;
+    -fx-font: bold 18 arial;
+}
+
+
