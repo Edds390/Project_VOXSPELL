@@ -28,6 +28,8 @@ public class WordModel implements Resettable, Serializable {
     private String _spellingListPath;
     private File _file = new File(".voxspellData.ser");
 
+    private String _title;
+
     public WordModel(String spellingListPath) throws IOException{
         _spellingListPath = spellingListPath;
         //serializble already exists; not new game
@@ -63,6 +65,11 @@ public class WordModel implements Resettable, Serializable {
         int currentLevelValue = 1;//integer used to construct level class
         Level currentLevel;
         String currentLine;
+
+        //get name of file
+        File file = new File(_spellingListPath);
+        _title = file.getName();
+
         //begin reading spelling list
         FileReader fr = new FileReader(_spellingListPath);
         BufferedReader br = new BufferedReader(fr);
@@ -188,6 +195,8 @@ public class WordModel implements Resettable, Serializable {
     public List<Level> getLevelList() {
         return this._levelList;
     }
+
+    public String getTitle(){ return _title; }
 
     public void saveData() {
         try {
