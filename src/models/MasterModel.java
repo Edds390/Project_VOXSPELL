@@ -9,7 +9,9 @@ import java.util.Set;
  * Created by edson on 9/10/16.
  */
 public class MasterModel implements Serializable{
-    Map<String, WordModel> _masterMap;
+    private static final long serialVersionUID = 123L;
+    private Map<String, WordModel> _masterMap;
+    private Map<String, String> _titleDictionary;
     private File _file = new File(".MasterModel.ser");
 
 
@@ -18,7 +20,10 @@ public class MasterModel implements Serializable{
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(_file));
                 try {
-                    _masterMap = (HashMap<String, WordModel>) ois.readObject();
+                    MasterModel oldModel = (MasterModel) ois.readObject();
+                    _masterMap = oldModel.getMasterMap();
+                    _titleDictionary = oldModel.getTitleMap();
+
                     ois.close();
                 } catch (ClassNotFoundException e) {
 
@@ -33,6 +38,7 @@ public class MasterModel implements Serializable{
 
         } else {
             _masterMap = new HashMap<String, WordModel>();
+            _titleDictionary = new HashMap<String, String>();
         }
     }
 
@@ -41,16 +47,32 @@ public class MasterModel implements Serializable{
         _masterMap.put(wordModel.getTitle(), wordModel);
         try {
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(".MasterModel.ser"));
-            oos.writeObject(_masterMap);
+            oos.writeObject(this);
             oos.close();
         } catch (IOException e) {
-
+            //TODO prompt io exception
         }
+    }
 
+    public void addAddress(String title, String address){
+        _titleDictionary.put(title, address);
+
+    }
+
+    public String getAddress(String title){
+        if (_titleDictionary.get(title) == null){
+            //TODO prompt io exception
+            System.out.println("error state");
+        }
+        return _titleDictionary.get(title);
     }
 
     private Map getMasterMap(){
         return _masterMap;
+    }
+
+    public Map getTitleMap(){
+        return _titleDictionary;
     }
 
     public Set<String> getMapKeyset(){

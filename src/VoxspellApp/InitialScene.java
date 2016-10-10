@@ -3,6 +3,8 @@ package VoxspellApp;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,6 +19,7 @@ import models.Festival;
 import models.WordModel;
 
 import java.io.File;
+import java.util.Set;
 
 /**
  * Created by edson on 15/09/16.
@@ -51,6 +54,7 @@ public class InitialScene {
     private WordModel _model;
 
     private ComboBox _voiceOptionCombo;
+    private ComboBox<String> listCombo;
 
     public InitialScene(Stage window, WordModel model){
         _model = model;
@@ -78,7 +82,7 @@ public class InitialScene {
 
 
 
-        setupEventHandlers();
+
 
     }
 
@@ -157,6 +161,9 @@ public class InitialScene {
         voiceLabel.setAlignment(Pos.CENTER);
         GridPane.setConstraints(voiceLabel, 0, 3);
 
+
+        /*
+
         _newTip.setStyle("-fx-font: 16 arial");
 
         if (_review) {
@@ -169,8 +176,8 @@ public class InitialScene {
         tipLabel2.setStyle("-fx-text-fill: white");
         tipLabel3.setStyle("-fx-text-fill: white");
         tipLabel1.setStyle("-fx-text-fill: white");
+        */
 
-        GridPane.setConstraints(_newTip, 0, 5);
 
         //set up combo box for choosing levels
         _voiceOptionCombo = new ComboBox<String>();
@@ -186,10 +193,27 @@ public class InitialScene {
         });
         GridPane.setConstraints(_voiceOptionCombo, 0, 4);
 
-        gameGrid.getChildren().addAll(levelLabel, voiceLabel, _voiceOptionCombo, _newTip);
+        Label listLabel = new Label("Spelling List");
+        listLabel.setStyle("-fx-font: bold 25 latoheavy; -fx-text-fill:  white;");
+        listLabel.setAlignment(Pos.CENTER);
+        GridPane.setConstraints(listLabel, 0, 5);
+
+        //make the combobox for spelling list
+        ObservableList<String> options = FXCollections.observableArrayList();
+        listCombo = new ComboBox<String>(options);
+        Set<String> listSet = _model.getMasterModel().getMapKeyset();
+        for (String list : listSet){
+            listCombo.getItems().add(list);
+        }
+        listCombo.setValue(_model.getTitle());
+        listCombo.setStyle("-fx-font: 20 latoheavy; -fx-background-radius: 20 20 20 20");
+        GridPane.setConstraints(listCombo, 0, 6);
+
+        gameGrid.getChildren().addAll(levelLabel, voiceLabel, _voiceOptionCombo, listLabel, listCombo);//removed newtip
 
         GridPane.setConstraints(playButton, 0, 10);
         gameGrid.getChildren().add(playButton);
+        setupEventHandlers();
         return gameGrid;
 
     }
@@ -330,6 +354,16 @@ public class InitialScene {
             SpellingQuizScene newGameSceneCreator = new SpellingQuizScene(_model, _window, _review);
             Scene newGameScene = newGameSceneCreator.createScene();
             _window.setScene(newGameScene);
+        });
+        listCombo.setOnAction(event -> {
+            String spellingList = listCombo.getSelectionModel().getSelectedItem();
+            _model.saveData();
+            _model.newList(spellingList);
+            //refresh page
+            GridPane gameSceneLayout = setGameScene();
+            _mainLayout.setCenter(gameSceneLayout);
+            setupEventHandlers();
+
         });
     }
 

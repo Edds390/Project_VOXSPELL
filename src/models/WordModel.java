@@ -41,13 +41,16 @@ public class WordModel implements Resettable, Serializable {
         _title = spellingListPath;
         checkSerExists(spellingListPath);
         _masterModel = masterModel;
+        _masterModel.addToMaster(this);
+        _masterModel.addAddress(spellingListPath, spellingListPath);
 
     }
 
-    public void newList(String spellingList){
-        _title = spellingList;
+    public void newList(String fileName){
+        _title = fileName;
+
         try {
-            checkSerExists(spellingList);
+            checkSerExists(_masterModel.getAddress(fileName));
         } catch (IOException e) {
             e.printStackTrace();
             //TODO prompt user file doesnt exist
@@ -55,7 +58,7 @@ public class WordModel implements Resettable, Serializable {
     }
 
     private void checkSerExists(String spellingListPath) throws IOException{
-        _file = new File("."+spellingListPath+".ser");
+        _file = new File("."+_title+".ser");
         _spellingListPath = spellingListPath;
         //serializble already exists; not new game
         if (_file.exists()) {
@@ -239,6 +242,8 @@ public class WordModel implements Resettable, Serializable {
     public Map<String, Integer> getCategoryMap() { return this._categoryDictionary; }
 
     public MasterModel getMasterModel() { return this._masterModel; }
+
+    public String getFilePath(){ return this._spellingListPath; }
 
 
     public String getTitle(){ return _title; }

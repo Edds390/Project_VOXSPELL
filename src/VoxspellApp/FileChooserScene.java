@@ -47,13 +47,13 @@ public class FileChooserScene {
     ListView<String> _wordListView;
 
     //combobox items
-
+    String _filePath;
 
 
 
     public FileChooserScene(WordModel model){
         _model = model;
-
+        _filePath = model.getFilePath();
 
         _mainLayout = new BorderPane();
         Label title = new Label("Change Spelling List");
@@ -62,7 +62,7 @@ public class FileChooserScene {
         setEventHandlers();
         _mainLayout.setTop(_comboBoxLayout);
         _mainLayout.setCenter(_listLayout);
-        _mainLayout.setPadding(new Insets(20));
+        _mainLayout.setPadding(new Insets(20,20,40,20));
 
     }
 
@@ -75,7 +75,7 @@ public class FileChooserScene {
 
 
         Label cFile = new Label("Current File: " + _model.getTitle());
-        cFile.setStyle("-fx-font: bold 20 arial; -fx-text-fill: white;");
+        cFile.setStyle("-fx-font: bold 24 arial; -fx-text-fill: white; -fx-underline: true");
 
 
         HBox comboLayout = new HBox(10);
@@ -87,24 +87,25 @@ public class FileChooserScene {
             _listCombo.getItems().add(list);
         }
         _listCombo.setValue(_model.getTitle());
+        _listCombo.setStyle("-fx-font: 20 latoheavy; -fx-background-radius: 20 20 20 20");
         //add and minus buttons
         HBox buttonBox = new HBox();
         _newListButton = new Button("+");
-        _deleteListButton = new Button("-");
-        buttonBox.getChildren().addAll(_newListButton, _deleteListButton);
+        _newListButton.setStyle("-fx-font: 20 latoheavy; -fx-background-radius: 20 20 20 20");
+        buttonBox.getChildren().addAll(_newListButton);
         comboLayout.getChildren().addAll(_listCombo, buttonBox);
         comboLayout.setAlignment(Pos.CENTER);
 
         _comboBoxLayout.getChildren().addAll(cFile, comboLayout);
         _comboBoxLayout.setAlignment(Pos.CENTER);
-        _comboBoxLayout.setPadding(new Insets(8));
+        _comboBoxLayout.setPadding(new Insets(8,8,35,8));
 
     }
 
     private void setViewListLayout(){
-        _listLayout = new HBox(30);
 
-        _categoryLayout = new VBox(4);
+
+        _categoryLayout = new VBox(8);
         for (String category : _model.getCategoryList()){
             Hyperlink link = new Hyperlink(category);
             setAction(link);
@@ -118,6 +119,7 @@ public class FileChooserScene {
         _wordListView.setItems(words);
         _wordListView.setStyle("-fx-font: bold 20 arial; -fx-text-fill: white;");
 
+        _listLayout = new HBox(30);
         _listLayout.getChildren().addAll(_categoryLayout, _wordListView);
         _listLayout.setAlignment(Pos.CENTER);
     }
@@ -150,6 +152,8 @@ public class FileChooserScene {
             File selectedFile = fileChooser.showOpenDialog(mainStage);//pass reference to window
             if (selectedFile != null) {
                 String fileName = selectedFile.getName();
+                String filePath = selectedFile.getPath();
+                _model.getMasterModel().addAddress(fileName, filePath);
                 _model.newList(fileName);//update model with new spelling list
                 setComboBoxLayout();
                 setViewListLayout();
@@ -163,11 +167,9 @@ public class FileChooserScene {
             }
 
         });
-        _deleteListButton.setOnAction(e -> {
-
-        });
         _listCombo.setOnAction(e->{
             String spellingList = _listCombo.getSelectionModel().getSelectedItem();
+            _model.saveData();
             _model.newList(spellingList);
             setComboBoxLayout();
             setViewListLayout();
