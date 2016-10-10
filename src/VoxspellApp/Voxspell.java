@@ -5,6 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import models.Festival;
+import models.MasterModel;
 import models.WordModel;
 
 import java.io.IOException;
@@ -24,8 +25,10 @@ public class Voxspell extends Application {
     private InitialScene _initialScene;
 
 
+    //Models
     private int level = 1;//default level 1
     private WordModel _model;
+    private MasterModel _masterModel;
 
     Button playButton;
 
@@ -34,6 +37,9 @@ public class Voxspell extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+
+        _masterModel = new MasterModel();
+
         //main window of program
         _mainWindow = primaryStage;
         _mainWindow.setTitle("VOXSPELL");
@@ -43,7 +49,7 @@ public class Voxspell extends Application {
         });
 
         try{
-            _model = new WordModel("NZCER-spelling-lists.txt");
+            _model = new WordModel("NZCER-spelling-lists.txt", _masterModel);
         } catch (IOException e){
             closeProgram("Spelling list was not found. Continuing may corrupt the program. Quit?");
         }
@@ -73,4 +79,9 @@ public class Voxspell extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
+    public Stage getStageRef(){
+        return _mainWindow;
+    }
+
 }

@@ -10,27 +10,52 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by edson on 15/09/16.
  */
 public class WordModel implements Resettable, Serializable {
     private static final long serialVersionUID = 1L;
+
+    private MasterModel _masterModel;
+    List<String> _categoryList;
     List<Level> _levelList;//arraylist of Level objects
     private int _totalLevels;
     private  int _currentLevel;
     //private int _accessLevel = 1;//int of user's highest accessible level
+
     private boolean[] _accessStats;
     private List<int[]> _accuracyList;//list of int arrays showing statistic for each level
     private int[] _overallStatstic;//int array of overall frequency of each mastered(2),faulted(1),failed(0)
+    private Map<String, Integer> _categoryDictionary;
 
     private String _spellingListPath;
-    private File _file = new File(".voxspellData.ser");
+    private File _file;
 
     private String _title;
 
-    public WordModel(String spellingListPath) throws IOException{
+    public WordModel(String spellingListPath, MasterModel masterModel) throws IOException{
+        _title = spellingListPath;
+        checkSerExists(spellingListPath);
+        _masterModel = masterModel;
+
+    }
+
+    public void newList(String spellingList){
+        _title = spellingList;
+        try {
+            checkSerExists(spellingList);
+        } catch (IOException e) {
+            e.printStackTrace();
+            //TODO prompt user file doesnt exist
+        }
+    }
+
+    private void checkSerExists(String spellingListPath) throws IOException{
+        _file = new File("."+spellingListPath+".ser");
         _spellingListPath = spellingListPath;
         //serializble already exists; not new game
         if (_file.exists()) {
@@ -45,6 +70,8 @@ public class WordModel implements Resettable, Serializable {
                     _accessStats = wordModel.getAccessStats();
                     _accuracyList = wordModel.getAccuracyList();
                     _overallStatstic = wordModel.getOverall();
+                    _categoryList = wordModel.getCategoryList();
+                    _categoryDictionary = wordModel.getCategoryMap();
                     ois.close();
                 } catch (ClassNotFoundException e) {
 
@@ -55,20 +82,19 @@ public class WordModel implements Resettable, Serializable {
         } else {//new game
             makeNewModel();
         }
+
     }
 
     private void makeNewModel() throws IOException{
         //initialise fields
+        _categoryDictionary = new HashMap<String, Integer>();
+        _categoryList = new ArrayList<String>();
         _accuracyList = new ArrayList<int[]>();
         _overallStatstic = new int[3];
 
         int currentLevelValue = 1;//integer used to construct level class
         Level currentLevel;
         String currentLine;
-
-        //get name of file
-        File file = new File(_spellingListPath);
-        _title = file.getName();
 
         //begin reading spelling list
         FileReader fr = new FileReader(_spellingListPath);
@@ -80,6 +106,8 @@ public class WordModel implements Resettable, Serializable {
             currentLevel = new Level(currentLevelValue);
             _levelList = new ArrayList<>();
             _levelList.add(currentLevel);
+            _categoryList.add(currentLine.substring(1));
+            _categoryDictionary.put(currentLine.substring(1), currentLevelValue);
             currentLevelValue+=1;
         }
         while((currentLine = br.readLine())!=null){
@@ -88,6 +116,8 @@ public class WordModel implements Resettable, Serializable {
             } else {
                 currentLevel = new Level(currentLevelValue);
                 _levelList.add(currentLevel);
+                _categoryList.add(currentLine.substring(1));
+                _categoryDictionary.put(currentLine.substring(1), currentLevelValue);
                 currentLevelValue+=1;
             }
 
@@ -103,6 +133,9 @@ public class WordModel implements Resettable, Serializable {
             _accessStats[i] = false;//set accessible to all level stats to false
         }
     }
+
+
+
 
     //reset signal propagate to contained object
     //TODO should consider reset to make a new WordModel object
@@ -162,6 +195,11 @@ public class WordModel implements Resettable, Serializable {
     }
     */
 
+
+    public Level getLevel(String category){
+        return _levelList.get(_categoryDictionary.get(category)-1);
+    }
+
     public Level getLevel(int level){
         return _levelList.get(level);
     }
@@ -196,6 +234,13 @@ public class WordModel implements Resettable, Serializable {
         return this._levelList;
     }
 
+    public List<String> getCategoryList() { return this._categoryList; }
+
+    public Map<String, Integer> getCategoryMap() { return this._categoryDictionary; }
+
+    public MasterModel getMasterModel() { return this._masterModel; }
+
+
     public String getTitle(){ return _title; }
 
     public void saveData() {
@@ -203,6 +248,8 @@ public class WordModel implements Resettable, Serializable {
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(_file));
             oos.writeObject(this);
             oos.close();
+            _masterModel.addToMaster(this);
+
         } catch (IOException e) {
 
         }

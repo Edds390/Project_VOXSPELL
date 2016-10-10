@@ -92,6 +92,10 @@ public class Level implements Resettable, Iterable<Word>, Serializable {
        }
    }
 
+   public List<Word> getWordList(){
+       return _wordList;
+   }
+
    public void sort(){
        Collections.sort(_wordList);
    }

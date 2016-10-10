@@ -16,6 +16,8 @@ import javafx.stage.Stage;
 import models.Festival;
 import models.WordModel;
 
+import java.io.File;
+
 /**
  * Created by edson on 15/09/16.
  *
@@ -32,6 +34,7 @@ public class InitialScene {
     private ToggleButton _newGameButton;
     private ToggleButton _reviewGameButton;
     private ToggleButton _statisticsButton;
+    private ToggleButton _viewWordsButton;
     private ToggleButton _resetButton;
     private Button playButton;
 
@@ -95,9 +98,10 @@ public class InitialScene {
         _reviewGameButton = createMenuButtons("MediaResources/newGame.png", "REVIEW");
         _statisticsButton = createMenuButtons("MediaResources/newGame.png", "STATISTICS");
         _resetButton = createMenuButtons("MediaResources/newGame.png", "RESET");
+        _viewWordsButton = createMenuButtons("MediaResources/newGame.png", "VIEW WORDS");
 
         menuSceneLayout.setPadding(new Insets(10));//insets: top right bottom left
-        menuSceneLayout.getChildren().addAll(_newGameButton, _reviewGameButton, _statisticsButton, _resetButton);
+        menuSceneLayout.getChildren().addAll(_newGameButton, _reviewGameButton, _statisticsButton, _viewWordsButton, _resetButton);
         menuSceneLayout.getStyleClass().add("vbox");//add the custom vbox layout style
 
 
@@ -290,6 +294,11 @@ public class InitialScene {
             StatisticsScene graphScene = new StatisticsScene(_model);
             _mainLayout.setCenter(graphScene.createScene());//set center pane to the StatisticsScene's layout node
         });
+        _viewWordsButton.setOnAction(event -> {
+            FileChooserScene chooserScene = new FileChooserScene(_model);
+            _mainLayout.setCenter(chooserScene.getLayout());
+        });
+
         _resetButton.setOnAction(event -> {
             final VBox resetVbox = new VBox(20);
             resetVbox.setPadding(new Insets(40,50,40,40));
