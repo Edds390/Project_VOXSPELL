@@ -4,6 +4,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -49,9 +51,22 @@ public class ListCreatorScene {
     //output
     StringBuilder _sb = new StringBuilder();
 
+    String _wordToDelete=null;
+    String _categoryToDelete = null;
+
+    //Menu buttons
+    Button _save;
+    Button _back;
+
     public ListCreatorScene(){
 
+
         Label title = new Label("Make your own spelling quiz!");
+        title.setStyle("-fx-font: bold 24 arial; -fx-text-fill: white; -fx-underline: true");
+        HBox titleBox = new HBox();
+        titleBox.setAlignment(Pos.CENTER);
+        titleBox.getChildren().add(title);
+
         createListViews();
         _categoryList = FXCollections.observableArrayList();
         _wordList = FXCollections.observableArrayList();
@@ -59,7 +74,7 @@ public class ListCreatorScene {
 
 
         _mainLayout = new BorderPane();
-        _mainLayout.setTop(title);
+        _mainLayout.setTop(titleBox);
         _mainLayout.setCenter(_listBox);
 
 
@@ -87,6 +102,7 @@ public class ListCreatorScene {
         _deleteCategory = new Button("-");
         _submitWord = new Button("+");
         _deleteWord = new Button("-");
+        _deleteCategory.setDisable(true);
         _deleteWord.setDisable(true);
         _submitWord.setDisable(true);
         categorySubmitBox.getChildren().addAll(_categoryInput, _submitCategory, _deleteCategory);
@@ -95,11 +111,33 @@ public class ListCreatorScene {
         wordBox.getChildren().addAll(_wordListView, wordSubmitBox);
         categoryBox.getChildren().addAll(_categoryListView, categorySubmitBox);
 
-        _listBox.getChildren().addAll(categoryBox,wordBox);
+        //create menu buttons
+        VBox menuButtons = createButtonLayout();
+
+
+        _listBox.getChildren().addAll(categoryBox,wordBox, menuButtons);
+        _listBox.setAlignment(Pos.CENTER);
+        _listBox.setPadding(new Insets(30));
+
+
     }
 
-    private void refreshLists(){
+    private VBox createButtonLayout(){
+        VBox vbox = new VBox(10);
+        vbox.setPadding(new Insets(5));
+        vbox.setAlignment(Pos.CENTER);
+        _save = createButtons("SAVE");
+        _back = createButtons("BACK");
+        vbox.getChildren().addAll(_save, _back);
+        return vbox;
+    }
 
+    private Button createButtons(String text){
+        Button newButton = new Button(text);
+        newButton.setPrefWidth(180);
+        newButton.setPrefHeight(140);
+        newButton.setStyle("-fx-font: bold 20 arial; -fx-base: #fbb040; -fx-background-radius: 10 10 10 10; -fx-text-fill: white");
+        return newButton;
     }
 
     private void setupEventHandlers(){
@@ -133,8 +171,9 @@ public class ListCreatorScene {
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 _wordListView.setItems(_levelMap.get(newValue));
                 _wordList = _levelMap.get(newValue);
+                _deleteCategory.setDisable(false);
                 _submitWord.setDisable(false);
-                _deleteWord.setDisable(false);
+                _categoryToDelete = newValue;
             }
         });
 
@@ -150,8 +189,33 @@ public class ListCreatorScene {
                 _wordList.add(input);
                 _wordListView.setItems(_wordList);
             }
+            _wordInput.clear();
         });
 
+        _wordListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                _deleteWord.setDisable(false);
+                _wordToDelete=newValue;
+            }
+        });
+
+        _deleteWord.setOnAction(e->{
+            _wordList.remove(_wordToDelete);
+            _wordListView.setItems(_wordList);
+            if (_wordList.size()==0){
+                _deleteWord.setDisable(true);
+            }
+        });
+
+        _deleteCategory.setOnAction(e->{
+            _levelMap.remove(_categoryToDelete);
+            _categoryList.remove(_categoryToDelete);
+            _categoryListView.setItems(_categoryList);
+            if(_categoryList.size()==0){
+                _deleteCategory.setDisable(true);
+            }
+        });
 
     }
 
