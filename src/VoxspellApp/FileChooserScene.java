@@ -64,6 +64,7 @@ public class FileChooserScene {
         _mainLayout.setCenter(_listLayout);
         _mainLayout.setPadding(new Insets(20,20,40,20));
 
+
     }
 
     public BorderPane getLayout(){
