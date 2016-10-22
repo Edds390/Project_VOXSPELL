@@ -45,7 +45,7 @@ public class SpellingQuiz {
     public void spellingLogic(String userinput) {
         if (!_setUpFlag) {
             _phrase = "Please Spell " + _spellingList.get(_position).getWord();
-            //System.out.println(_phrase);
+            System.out.println(_phrase);
             startFestivalThread(_phrase);
             _setUpFlag = true;
             _status = Status.Unseen;
@@ -63,7 +63,7 @@ public class SpellingQuiz {
             } else {
                 _phrase = "Incorrect . Please Try Again . " + _spellingList.get(_position).getWord() + " . " +  _spellingList.get(_position).getWord();
                 startFestivalThread(_phrase);
-                //System.out.println(_phrase);
+                System.out.println(_phrase);
                 _attemptFlag = true;
                 _status = Status.Unseen;
                 return;
@@ -92,7 +92,7 @@ public class SpellingQuiz {
         if (_position < _spellingList.size()) {
             _phrase = _phrase + " Please Spell " + _spellingList.get(_position).getWord();
             startFestivalThread(_phrase);
-            //System.out.println(_phrase);
+            System.out.println(_phrase);
         } else {
             startFestivalThread(_phrase);
             if (_review) {

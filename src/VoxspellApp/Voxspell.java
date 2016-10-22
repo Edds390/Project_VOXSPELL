@@ -43,6 +43,7 @@ public class Voxspell extends Application {
         //main window of program
         _mainWindow = primaryStage;
         _mainWindow.setTitle("VOXSPELL");
+        _mainWindow.setResizable(false);
         _mainWindow.setOnCloseRequest(e -> {
             e.consume();//suppress user request
             closeProgram("Are you sure you want to quit Voxspell?");//replace with our own close implementation

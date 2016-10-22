@@ -45,6 +45,8 @@ public class SpellingQuizScene {
     private HBox _buttonArea = new HBox();
     private HBox _resultsArea = new HBox();
     private VBox _accuracyArea = new VBox();
+    private GridPane _gameArea = new GridPane();
+    private HBox _overallGameArea;
 
     //CONGRATS PANE
     private HBox _congratsStatusArea = new HBox();
@@ -73,11 +75,13 @@ public class SpellingQuizScene {
     //STORAGE
     private ArrayList<Circle> _circleList = new ArrayList<Circle>();
     private int _position;
+    private int miceNum;
     private int _numberMastered;
     private double _accuracy = 0;
     private String _savedString = "";
 
     private MenuPopup _menu;
+    private ImageView _miceGroup;
 
 
     //IMAGE
@@ -106,10 +110,11 @@ public class SpellingQuizScene {
         setUpTextArea();
         setUpButtonArea();
         setUpResultsArea();
+        setUpGameArea();
         _menu = new MenuPopup();
-        _mainLayout.setPadding(new Insets(20,20,20,20));
-        _mainLayout.getChildren().addAll(_statusArea,_resultsArea,_buttonArea,_textArea);
-        BackgroundImage menuBackground = new BackgroundImage(new Image("MediaResources/background.png", 1040, 640, false, true),
+        _mainLayout.setPadding(new Insets(10,20,20,20));
+        _mainLayout.getChildren().addAll(_statusArea,_resultsArea,_overallGameArea,_buttonArea,_textArea);
+        BackgroundImage menuBackground = new BackgroundImage(new Image("MediaResources/newgamebackground.png", 1040, 640, false, true),
                 BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);
         _mainLayout.setBackground(new Background(menuBackground));
 
@@ -117,9 +122,60 @@ public class SpellingQuizScene {
         //_mainScene.getStylesheets().add("VoxspellApp/LayoutStyles");
     }
 
+    private void setUpGameArea(){
+        _overallGameArea = new HBox();
+
+        _gameArea = new GridPane();
+        _gameArea.setPadding(new Insets(60,0,0,0));
+        miceNum = _wordModel.getSpellingList(_review).size();
+
+        final ImageView catimv = new ImageView();
+        final Image catImage = new Image("MediaResources/catplaysflute.png", 250, 250, false, true);
+        catimv.setImage(catImage);
+
+        _miceGroup = new ImageView();
+        final Image miceImage = new Image("MediaResources/"+miceNum+"mice.png", 150, 150, false, true);
+        _miceGroup.setImage(miceImage);
+        GridPane.setConstraints(_miceGroup,10,0);
+
+        //set equidistance mice passage based on how many words there are
+        //http://stackoverflow.com/questions/22298336/javafx-gridpane-resizing-of-pane-children
+        for (int j = 0; j < miceNum; j++) {
+            ColumnConstraints cc = new ColumnConstraints();
+            cc.setPrefWidth(65);
+            _gameArea.getColumnConstraints().add(cc);
+        }
+
+        _gameArea.getChildren().addAll(_miceGroup);
+
+        _overallGameArea.getChildren().addAll(catimv,_gameArea);
+
+    }
+
+    public void updateMice(){
+        _gameArea.getChildren().remove(_miceGroup);
+
+        final ImageView catimv = new ImageView();
+        final Image catImage = new Image("MediaResources/catplaysflute.png", 250, 250, false, true);
+        catimv.setImage(catImage);
+        GridPane.setConstraints(catimv, 0, 0);
+
+        _miceGroup = new ImageView();
+        final Image miceImage = new Image("MediaResources/"+miceNum+"mice.png", 150, 150, false, true);
+        _miceGroup.setImage(miceImage);
+        GridPane.setConstraints(_miceGroup,miceNum,0);
+
+        _gameArea.getChildren().addAll(_miceGroup);
+        _overallGameArea.getChildren().clear();
+        _overallGameArea.getChildren().addAll(catimv, _gameArea);
+
+        _mainLayout.getChildren().clear();
+        _mainLayout.getChildren().addAll(_statusArea,_resultsArea,_overallGameArea,_buttonArea,_textArea);
+    }
+
     private void setUpTextArea() {
         _textArea.setSpacing(20);
-        _textArea.setPadding(new Insets(20));
+        _textArea.setPadding(new Insets(5));
         _textArea.setAlignment(Pos.CENTER);
 
         _inputText.setMinWidth(700);
@@ -138,8 +194,8 @@ public class SpellingQuizScene {
     }
 
     private void setUpStatusArea() {
-        _statusArea.setSpacing(50);
-        _statusArea.setPadding(new Insets(20));
+        _statusArea.setSpacing(10);
+        _statusArea.setPadding(new Insets(5));
         _statusArea.setAlignment(Pos.CENTER);
 
         _levelTitle.setText("Level " + _wordModel.getCurrentLevel());
@@ -157,7 +213,7 @@ public class SpellingQuizScene {
 
     private void setUpButtonArea() {
         _buttonArea.setSpacing(50);
-        _buttonArea.setPadding(new Insets(50));
+        _buttonArea.setPadding(new Insets(5));
         _buttonArea.setPrefHeight(200);
         _buttonArea.setAlignment(Pos.CENTER);
 
@@ -180,7 +236,7 @@ public class SpellingQuizScene {
     }
 
     private void setUpAccuracyTitles() {
-        _accuracyArea.setPadding(new Insets(20,0,0,0));
+        _accuracyArea.setPadding(new Insets(5,0,0,0));//TODO was 20
         _accuracyArea.setAlignment(Pos.CENTER);
 
         _accuracyTitle.setText("Accuracy");
@@ -200,7 +256,7 @@ public class SpellingQuizScene {
 
     private void setUpResultsArea() {
         _resultsArea.setSpacing(15);
-        _resultsArea.setPadding(new Insets(50));
+        _resultsArea.setPadding(new Insets(5));
         _resultsArea.setPrefHeight(150);
         _resultsArea.setAlignment(Pos.CENTER);
 
@@ -219,6 +275,31 @@ public class SpellingQuizScene {
         }
     }
 
+    private void updateMice(Status status){
+
+        if (status.equals(Status.Mastered)){
+            updateMice();
+            //mice number does not decrement as none gets left behind if correct
+
+        } else if (status.equals(Status.Faulted)){
+            miceNum--;
+            updateMice();
+            final ImageView miceimv = new ImageView();
+            final Image miceImage = new Image("MediaResources/mouse1sharp.png", 80, 105, false, true);
+            miceimv.setImage(miceImage);
+            GridPane.setConstraints(miceimv,miceNum+1,0);
+            _gameArea.getChildren().addAll(miceimv);
+        } else if (status.equals(Status.Failed)){
+            miceNum--;
+            updateMice();
+            final ImageView miceimv = new ImageView();
+            final Image miceImage = new Image("MediaResources/mouse3flat.png", 80, 105, false, true);
+            miceimv.setImage(miceImage);
+            GridPane.setConstraints(miceimv,miceNum+1,0);
+            _gameArea.getChildren().addAll(miceimv);
+        }
+    }
+
     private void updateCircle(Status status) {
         if (status.equals(Status.Mastered)) {
             _circleList.get(_position).setStyle("-fx-fill: rgb(90,175,90);");
@@ -231,6 +312,7 @@ public class SpellingQuizScene {
             _position++;
             colorAccuracy(_accuracy/_position * 100);
         } else if (status.equals(Status.Failed)) {
+            _circleList.get(_position).setStyle("-fx-fill: rgb(225,100,50);");
             _circleList.get(_position).setStyle("-fx-fill: rgb(225,100,50);");
             _position++;
             colorAccuracy(_accuracy/_position * 100);
@@ -256,6 +338,7 @@ public class SpellingQuizScene {
         resetAccuracyHandlers();
         _position = 0;
         _accuracy = 0;
+        setUpGameArea();
         _accuracyLabel.setText("---.--%");
         _accuracyLabel.setStyle("-fx-font: bold 40 arial;-fx-text-fill: #fbb040");
         _startQuizButton.setDisable(false);
@@ -307,7 +390,7 @@ public class SpellingQuizScene {
     private void setUpRewardGui() {
         //_wordModel.levelUp();
 
-        _mainLayout.getChildren().removeAll(_statusArea,_resultsArea,_buttonArea,_textArea);
+        _mainLayout.getChildren().removeAll(_statusArea,_resultsArea,_buttonArea,_textArea, _overallGameArea);
         _mainLayout.setAlignment(Pos.CENTER);
         _mainLayout.setSpacing(13);
 
@@ -344,7 +427,7 @@ public class SpellingQuizScene {
     }
 
     private void setUpFailedGui() {
-        _mainLayout.getChildren().removeAll(_statusArea,_resultsArea,_buttonArea,_textArea);
+        _mainLayout.getChildren().removeAll(_statusArea,_resultsArea,_buttonArea,_textArea, _overallGameArea);
         _mainLayout.setAlignment(Pos.CENTER);
         _mainLayout.setSpacing(13);
 
@@ -376,7 +459,7 @@ public class SpellingQuizScene {
     }
 
     private void setUpReviewGui() {
-        _mainLayout.getChildren().removeAll(_statusArea,_resultsArea,_buttonArea,_textArea);
+        _mainLayout.getChildren().removeAll(_statusArea,_resultsArea,_buttonArea,_textArea, _overallGameArea);
         _mainLayout.setAlignment(Pos.CENTER);
         _mainLayout.setSpacing(13);
 
@@ -401,7 +484,12 @@ public class SpellingQuizScene {
         String text = _inputText.getText();
         _inputText.clear();
         _quiz.spellingLogic(text);
-        updateCircle(_quiz.getStatus());
+        Status stat = _quiz.getStatus();
+        updateCircle(stat);
+        if(!(miceNum<=1)) {
+            updateMice(stat);
+        }
+
         _wordModel.StatsAccessibleOn();//turn on access to statistics for this level
         isFinished();
     }
@@ -470,7 +558,7 @@ public class SpellingQuizScene {
             public void handle(ActionEvent event) {
                 _mainLayout.getChildren().removeAll(_congratsStatusArea,_resultsArea,_videoButton,_nextLevelButton,_stayButton,_mainMenu);
                 reset();
-                _mainLayout.getChildren().addAll(_statusArea,_resultsArea,_buttonArea,_textArea);
+                _mainLayout.getChildren().addAll(_statusArea,_resultsArea,_overallGameArea,_buttonArea,_textArea);
             }
         });
 
@@ -480,7 +568,7 @@ public class SpellingQuizScene {
                 _mainLayout.getChildren().removeAll(_congratsStatusArea,_resultsArea,_videoButton,_nextLevelButton,_stayButton,_mainMenu);
                 _wordModel.updateLevel(_wordModel.getCurrentLevel()+1);
                 reset();
-                _mainLayout.getChildren().addAll(_statusArea,_resultsArea,_buttonArea,_textArea);
+                _mainLayout.getChildren().addAll(_statusArea,_resultsArea,_overallGameArea,_buttonArea,_textArea);
             }
         });
 
