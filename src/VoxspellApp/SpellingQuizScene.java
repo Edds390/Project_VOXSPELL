@@ -76,6 +76,7 @@ public class SpellingQuizScene {
     private ArrayList<Circle> _circleList = new ArrayList<Circle>();
     private int _position;
     private int miceNum;
+    private int _miceHowMany;
     private int _numberMastered;
     private double _accuracy = 0;
     private String _savedString = "";
@@ -128,15 +129,17 @@ public class SpellingQuizScene {
         _gameArea = new GridPane();
         _gameArea.setPadding(new Insets(60,0,0,0));
         miceNum = _wordModel.getSpellingList(_review).size();
+        _miceHowMany = miceNum;
+        miceNum--;
 
         final ImageView catimv = new ImageView();
         final Image catImage = new Image("MediaResources/catplaysflute.png", 250, 250, false, true);
         catimv.setImage(catImage);
 
         _miceGroup = new ImageView();
-        final Image miceImage = new Image("MediaResources/"+miceNum+"mice.png", 150, 150, false, true);
+        final Image miceImage = new Image("MediaResources/"+_miceHowMany+"mice.png", 150, 150, false, true);
         _miceGroup.setImage(miceImage);
-        GridPane.setConstraints(_miceGroup,10,0);
+        GridPane.setConstraints(_miceGroup,miceNum,0);
 
         //set equidistance mice passage based on how many words there are
         //http://stackoverflow.com/questions/22298336/javafx-gridpane-resizing-of-pane-children
@@ -161,7 +164,7 @@ public class SpellingQuizScene {
         GridPane.setConstraints(catimv, 0, 0);
 
         _miceGroup = new ImageView();
-        final Image miceImage = new Image("MediaResources/"+miceNum+"mice.png", 150, 150, false, true);
+        final Image miceImage = new Image("MediaResources/"+_miceHowMany+"mice.png", 150, 150, false, true);
         _miceGroup.setImage(miceImage);
         GridPane.setConstraints(_miceGroup,miceNum,0);
 
@@ -278,11 +281,13 @@ public class SpellingQuizScene {
     private void updateMice(Status status){
 
         if (status.equals(Status.Mastered)){
+            miceNum--;
             updateMice();
             //mice number does not decrement as none gets left behind if correct
 
         } else if (status.equals(Status.Faulted)){
             miceNum--;
+            _miceHowMany--;
             updateMice();
             final ImageView miceimv = new ImageView();
             final Image miceImage = new Image("MediaResources/mouse1sharp.png", 80, 105, false, true);
@@ -291,6 +296,7 @@ public class SpellingQuizScene {
             _gameArea.getChildren().addAll(miceimv);
         } else if (status.equals(Status.Failed)){
             miceNum--;
+            _miceHowMany--;
             updateMice();
             final ImageView miceimv = new ImageView();
             final Image miceImage = new Image("MediaResources/mouse3flat.png", 80, 105, false, true);
@@ -486,7 +492,7 @@ public class SpellingQuizScene {
         _quiz.spellingLogic(text);
         Status stat = _quiz.getStatus();
         updateCircle(stat);
-        if(!(miceNum<=1)) {
+        if(!(miceNum<=0)) {
             updateMice(stat);
         }
 
