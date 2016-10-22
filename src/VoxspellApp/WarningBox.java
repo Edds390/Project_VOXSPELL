@@ -1,5 +1,6 @@
 package VoxspellApp;
 
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -23,7 +24,7 @@ public class WarningBox {
         label.setStyle("-fx-font: bold 13 ariel");
 
         //create buttons
-        Button yesButton = new Button("Yes");
+        Button yesButton = new Button("OK");
         yesButton.setStyle("-fx-background-radius: 5 5 5 5");
 
         yesButton.setOnAction(e -> {
@@ -31,7 +32,9 @@ public class WarningBox {
         });
 
         VBox layout = new VBox(5);
+        layout.setAlignment(Pos.CENTER);
         layout.getChildren().addAll(label, yesButton);
+        layout.setStyle("-fx-base: #262262;");
 
         Scene scene = new Scene(layout);
         window.setScene(scene);

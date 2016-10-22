@@ -41,6 +41,7 @@ public class FileChooserScene {
     //Buttons
     private Button _newListButton;
     private Button _deleteListButton;
+    private Button _createListButton;
 
     //ListViews
     private VBox _categoryLayout;
@@ -120,8 +121,13 @@ public class FileChooserScene {
         _wordListView.setItems(words);
         _wordListView.setStyle("-fx-font: bold 20 arial; -fx-text-fill: white;");
 
+        _createListButton = new Button("NEW LIST");
+        _createListButton.setPrefWidth(180);
+        _createListButton.setPrefHeight(140);
+        _createListButton.setStyle("-fx-font: bold 20 arial; -fx-base: #fbb040; -fx-background-radius: 10 10 10 10; -fx-text-fill: white");
+
         _listLayout = new HBox(30);
-        _listLayout.getChildren().addAll(_categoryLayout, _wordListView);
+        _listLayout.getChildren().addAll(_categoryLayout, _wordListView, _createListButton);
         _listLayout.setAlignment(Pos.CENTER);
     }
 
@@ -179,5 +185,16 @@ public class FileChooserScene {
             setEventHandlers();
         });
 
+        _createListButton.setOnAction(e->{
+            ListCreatorScene customList = new ListCreatorScene(_model.getMasterModel(), _model);
+            if(customList.display()){
+                setComboBoxLayout();
+                setViewListLayout();
+                _mainLayout.setTop(_comboBoxLayout);
+                _mainLayout.setCenter(_listLayout);
+                setEventHandlers();
+            }
+
+        });
     }
 }

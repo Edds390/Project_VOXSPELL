@@ -103,15 +103,9 @@ public class InitialScene {
         _statisticsButton = createMenuButtons("MediaResources/newGame.png", "STATISTICS");
         _resetButton = createMenuButtons("MediaResources/newGame.png", "RESET");
         _viewWordsButton = createMenuButtons("MediaResources/newGame.png", "VIEW WORDS");
-        ToggleButton _mleh = createMenuButtons("MediaResources/newGame.png", "VIEW WsORDS");
-        _mleh.setOnAction(e->{
-            ListCreatorScene ls = new ListCreatorScene();
-
-            _mainLayout.setCenter(ls.getLayout());
-        });
 
         menuSceneLayout.setPadding(new Insets(10));//insets: top right bottom left
-        menuSceneLayout.getChildren().addAll(_newGameButton, _reviewGameButton, _statisticsButton, _viewWordsButton, _resetButton, _mleh);
+        menuSceneLayout.getChildren().addAll(_newGameButton, _reviewGameButton, _statisticsButton, _viewWordsButton, _resetButton);
         menuSceneLayout.getStyleClass().add("vbox");//add the custom vbox layout style
 
 
