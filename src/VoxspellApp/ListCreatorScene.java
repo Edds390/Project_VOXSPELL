@@ -14,6 +14,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import models.Level;
@@ -25,6 +27,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -72,6 +75,7 @@ public class ListCreatorScene {
     private boolean _isSaved;
 
     StringBuilder output;
+    private MediaPlayer _sound;
 
     public ListCreatorScene(MasterModel master, WordModel model){
         _master = master;
@@ -94,6 +98,10 @@ public class ListCreatorScene {
         _mainLayout.setStyle("-fx-base: #1d194b;");
         _mainLayout.setTop(titleBox);
         _mainLayout.setCenter(_listBox);
+
+        final URL resource = getClass().getResource("/MediaResources/264447__kickhat__open-button-2.wav");
+        final Media media = new Media(resource.toString());
+        _sound = new MediaPlayer(media);
 
 
         setupEventHandlers();
@@ -188,6 +196,8 @@ public class ListCreatorScene {
 
     private void setupEventHandlers(){
         _submitCategory.setOnAction(e -> {
+            _sound.stop();
+            _sound.play();
             String input = _categoryInput.getText();
             if (input.length() > 15) {
                 WarningBox wb = new WarningBox();
@@ -224,6 +234,8 @@ public class ListCreatorScene {
         });
 
         _submitWord.setOnAction(e->{
+            _sound.stop();
+            _sound.play();
             String input = _wordInput.getText();
             if (!input.matches("[a-zA-Z]+")) {
                 WarningBox wb = new WarningBox();
@@ -247,6 +259,8 @@ public class ListCreatorScene {
         });
 
         _deleteWord.setOnAction(e->{
+            _sound.stop();
+            _sound.play();
             _wordList.remove(_wordToDelete);
             _wordListView.setItems(_wordList);
             if (_wordList.size()==0){
@@ -255,6 +269,8 @@ public class ListCreatorScene {
         });
 
         _deleteCategory.setOnAction(e->{
+            _sound.stop();
+            _sound.play();
             _levelMap.remove(_categoryToDelete);
             _categoryList.remove(_categoryToDelete);
             _categoryListView.setItems(_categoryList);
@@ -264,6 +280,8 @@ public class ListCreatorScene {
         });
 
         _save.setOnAction(e->{
+            _sound.stop();
+            _sound.play();
             boolean isSuccessful = true;
             output = new StringBuilder();
             if (_categoryList.size()==0){
@@ -295,6 +313,8 @@ public class ListCreatorScene {
         });
 
         _back.setOnAction(e->{
+            _sound.stop();
+            _sound.play();
             if(_isSaved){
                 String filePath="CustomFile.txt";
                 File file = new File(filePath);

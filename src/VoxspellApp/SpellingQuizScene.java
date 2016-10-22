@@ -13,16 +13,20 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import models.Festival;
 import models.SpellingQuiz;
 import models.Status;
 import models.WordModel;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -86,9 +90,14 @@ public class SpellingQuizScene {
     private ImageView _miceGroup;
 
 
-    //IMAGE
+
+    //IMAGE AND SOUNDS
     Image _loadingIcon = new Image("MediaResources/loaderSpinner.gif", 25, 25, false, false);
     double _submitButtonOpacity;
+    private MediaPlayer _mediaPlayer;
+    private MediaPlayer _rewardSound;
+    private MediaPlayer _failedSound;
+    private MediaPlayer _buttonSound;
 
 
 
@@ -99,6 +108,11 @@ public class SpellingQuizScene {
      * @param wordModel
      */
     public SpellingQuizScene(WordModel wordModel, Stage window, boolean review) {
+        final URL resource = getClass().getResource("/MediaResources/264447__kickhat__open-button-2.wav");
+        final Media media = new Media(resource.toString());
+        _buttonSound = new MediaPlayer(media);
+        _rewardSound = bgm("/MediaResources/353543__maxmakessounds__happy-theme.wav");
+        _failedSound = bgm("/MediaResources/Meow.m4a");
 
         this._wordModel = wordModel;
         this._window = window;
@@ -122,6 +136,16 @@ public class SpellingQuizScene {
 
         _mainScene = new Scene(_mainLayout, 1040, 640);
         //_mainScene.getStylesheets().add("VoxspellApp/LayoutStyles");
+        final URL resource = getClass().getResource("/MediaResources/bgm.wav");
+        final Media media = new Media(resource.toString());
+        _mediaPlayer = new MediaPlayer(media);
+        _mediaPlayer.setOnEndOfMedia(new Runnable() {
+            public void run() {
+                _mediaPlayer.seek(Duration.ZERO);
+            }
+        });
+        _mediaPlayer.play();
+
     }
 
     private void setUpGameArea(){
@@ -283,11 +307,13 @@ public class SpellingQuizScene {
     private void updateMice(Status status){
 
         if (status.equals(Status.Mastered)){
+            soundEffect("/MediaResources/goodmeow.wav");
             miceNum--;
             updateMice();
             //mice number does not decrement as none gets left behind if correct
 
         } else if (status.equals(Status.Faulted)){
+            soundEffect("/MediaResources/333916__thearxx08__cat-meowing.mp3");
             miceNum--;
             _miceHowMany--;
             updateMice();
@@ -297,6 +323,7 @@ public class SpellingQuizScene {
             GridPane.setConstraints(miceimv,miceNum+1,0);
             _gameArea.getChildren().addAll(miceimv);
         } else if (status.equals(Status.Failed)){
+            soundEffect("/MediaResources/badmeow.wav");
             miceNum--;
             _miceHowMany--;
             updateMice();
@@ -343,6 +370,7 @@ public class SpellingQuizScene {
     }
 
     private void reset() {
+        _mediaPlayer.play();
         resetAccuracyHandlers();
         _position = _wordModel.getSpellingList(_review).size();
         _accuracy = 0;
@@ -397,6 +425,8 @@ public class SpellingQuizScene {
 
     private void setUpRewardGui() {
         //_wordModel.levelUp();
+        _mediaPlayer.stop();
+        _rewardSound.play();
 
         _mainLayout.getChildren().removeAll(_statusArea,_resultsArea,_buttonArea,_textArea, _overallGameArea);
         _mainLayout.setAlignment(Pos.CENTER);
@@ -435,6 +465,8 @@ public class SpellingQuizScene {
     }
 
     private void setUpFailedGui() {
+        _mediaPlayer.stop();
+        _failedSound.play();
         _mainLayout.getChildren().removeAll(_statusArea,_resultsArea,_buttonArea,_textArea, _overallGameArea);
         _mainLayout.setAlignment(Pos.CENTER);
         _mainLayout.setSpacing(13);
@@ -524,6 +556,8 @@ public class SpellingQuizScene {
         _inputText.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
+                _buttonSound.stop();
+                _buttonSound.play();
                 if (event.getCode().toString().equals("ENTER")) {
                     //Festival.stopFestivalTTS();
                     submitHandler();
@@ -534,6 +568,8 @@ public class SpellingQuizScene {
         _submitButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                _buttonSound.stop();
+                _buttonSound.play();
                 //Festival.stopFestivalTTS();
                 submitHandler();
             }
@@ -542,6 +578,8 @@ public class SpellingQuizScene {
         _startQuizButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                _buttonSound.stop();
+                _buttonSound.play();
                 _position = _wordModel.getSpellingList(_review).size()-1;
                 _numberMastered = 0;
                 _startQuizButton.setDisable(true);
@@ -557,6 +595,8 @@ public class SpellingQuizScene {
         _repeatButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                _buttonSound.stop();
+                _buttonSound.play();
                 _quiz.repeatWord();
             }
         });
@@ -564,6 +604,10 @@ public class SpellingQuizScene {
         _stayButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                _buttonSound.stop();
+                _buttonSound.play();
+                _failedSound.stop();
+                _rewardSound.stop();
                 _mainLayout.getChildren().removeAll(_congratsStatusArea,_resultsArea,_videoButton,_nextLevelButton,_stayButton,_mainMenu);
                 reset();
                 _mainLayout.getChildren().addAll(_statusArea,_resultsArea,_overallGameArea,_buttonArea,_textArea);
@@ -573,6 +617,10 @@ public class SpellingQuizScene {
         _nextLevelButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                _buttonSound.stop();
+                _buttonSound.play();
+                _failedSound.stop();
+                _rewardSound.stop();
                 _mainLayout.getChildren().removeAll(_congratsStatusArea,_resultsArea,_videoButton,_nextLevelButton,_stayButton,_mainMenu);
                 _wordModel.updateLevel(_wordModel.getCurrentLevel()+1);
                 reset();
@@ -583,6 +631,11 @@ public class SpellingQuizScene {
         _mainMenu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                _buttonSound.stop();
+                _buttonSound.play();
+                _mediaPlayer.stop();
+                _failedSound.stop();
+                _rewardSound.stop();
                 //Switch To Main Menu Scene
                 InitialScene mainMenu = new InitialScene(_window, _wordModel);
                 _window.setScene(mainMenu.createScene());
@@ -593,6 +646,8 @@ public class SpellingQuizScene {
         _videoButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                _buttonSound.stop();
+                _buttonSound.play();
                 VideoPlayer video = new VideoPlayer();
                 video.display();
             }
@@ -601,6 +656,8 @@ public class SpellingQuizScene {
         _settingsButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                _buttonSound.stop();
+                _buttonSound.play();
                 _menu = new MenuPopup();
                 MenuStatus option = _menu.display();
                 if (option == MenuStatus.VOICE){
@@ -625,11 +682,13 @@ public class SpellingQuizScene {
                     Stage stage = Stage.class.cast(_mainScene.getWindow());
                     InitialScene initialScene = new InitialScene(stage, _wordModel);
                     stage.setScene(initialScene.createScene());
+                    _mediaPlayer.stop();
 
                 } else if (option == MenuStatus.EXIT){
                     Stage stage = Stage.class.cast(_mainScene.getWindow());
                     _wordModel.saveData();
                     stage.close();
+                    _mediaPlayer.stop();
 
                 }
 
@@ -657,6 +716,29 @@ public class SpellingQuizScene {
         _submitButton.setGraphic(null);
         _submitButton.setOpacity(_submitButtonOpacity);
         _repeatButton.setDisable(false);
+    }
+
+    /**
+     * make a sound effect for a button
+     * @param fileName: address of sound effect
+     */
+    private void soundEffect(String fileName){
+        final URL resource = getClass().getResource(fileName);
+        final Media media = new Media(resource.toString());
+        MediaPlayer sfx = new MediaPlayer(media);
+        sfx.play();
+    }
+
+    private MediaPlayer bgm(String fileName){
+        final URL resource = getClass().getResource(fileName);
+        final Media media = new Media(resource.toString());
+        MediaPlayer sfx = new MediaPlayer(media);
+        sfx.setOnEndOfMedia(new Runnable() {
+            public void run() {
+                sfx.seek(Duration.ZERO);
+            }
+        });
+        return sfx;
     }
 
 

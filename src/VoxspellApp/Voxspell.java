@@ -17,6 +17,15 @@ import java.io.IOException;
  * menu option that they choose.
  */
 
+/*
+References:
+Toggle Button
+https://www.freesound.org/people/magedu/sounds/264388/
+Normal Button
+https://www.freesound.org/people/kickhat/sounds/264447/
+
+ */
+
 public class Voxspell extends Application {
 
 

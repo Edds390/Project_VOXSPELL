@@ -5,8 +5,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.net.URL;
 
 /**
  * Created by edson on 22/10/16.
@@ -14,6 +18,11 @@ import javafx.stage.Stage;
 public class WarningBox {
 
     public void display(String title, String message) {
+        final URL resource = getClass().getResource("/MediaResources/124905__greencouch__beeps-5.wav");
+        final Media media = new Media(resource.toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.play();
+
         Stage window = new Stage();
         window.initModality(Modality.APPLICATION_MODAL);//modality for suppressing main window
         window.setTitle(title);

@@ -14,11 +14,15 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import models.Festival;
 import models.WordModel;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Set;
 
 /**
@@ -30,7 +34,14 @@ public class InitialScene {
     private Stage _window;
     private Scene _mainScene;//background scene of primary window
     private BorderPane _mainLayout;
+
+    //sounds
+    private MediaPlayer _mediaPlayer;
+    private MediaPlayer _buttonSound;
+    private MediaPlayer _toggleButtonSound;
+
     private boolean _review = false;
+
 
     //Buttons
     private ToggleGroup _menuGroup;
@@ -80,13 +91,33 @@ public class InitialScene {
         _mainScene = new Scene(_mainLayout, 1040, 640);
         _mainScene.getStylesheets().add("VoxspellApp/LayoutStyles");//add the css style-sheet to the main menu scene
 
+        _toggleButtonSound = createSound("/MediaResources/264388__magedu__toilet-flushing-button.wav");
+        _buttonSound = createSound("/MediaResources/264447__kickhat__open-button-2.wav");
 
 
 
 
     }
 
+    protected MediaPlayer createSound(String address){
+        final URL resource = getClass().getResource(address);
+        final Media media = new Media(resource.toString());
+        _mediaPlayer = new MediaPlayer(media);
+        return _mediaPlayer;
+    }
+
+    @SuppressWarnings("fallthrough")
     protected Scene createScene(){
+        //https://www.freesound.org/people/jmggs@hotmail.com/sounds/195355/
+        final URL resource = getClass().getResource("/MediaResources/195355__jmggs-hotmail-com__music-box.wav");
+        final Media media = new Media(resource.toString());
+        _mediaPlayer = new MediaPlayer(media);
+        _mediaPlayer.setOnEndOfMedia(new Runnable() {
+            public void run() {
+                _mediaPlayer.seek(Duration.ZERO);
+            }
+        });
+        _mediaPlayer.play();
         return _mainScene;
     }
     /**
@@ -255,6 +286,8 @@ public class InitialScene {
             levelButton.setStyle("-fx-font: 18 arial;-fx-background-radius: 25 25 25 25");
             //upon button click, update model's level
             levelButton.setOnAction(e->{
+                _toggleButtonSound.stop();
+                _toggleButtonSound.play();
                 _model.updateLevel(Integer.parseInt(levelButton.getText()));
             });
 
@@ -305,25 +338,35 @@ public class InitialScene {
 
     private void setupEventHandlers(){
         _newGameButton.setOnAction(event -> {
+            _toggleButtonSound.stop();
+            _toggleButtonSound.play();
             _review = false;
             _mainLayout.setCenter(setGameScene());
             _mode=Mode.NEW;
         });
         _reviewGameButton.setOnAction(event -> {
+            _toggleButtonSound.stop();
+            _toggleButtonSound.play();
             _review = true;
             _mainLayout.setCenter(setGameScene());
             _mode=Mode.REVIEW;
         });
         _statisticsButton.setOnAction(event -> {
+            _toggleButtonSound.stop();
+            _toggleButtonSound.play();
             StatisticsScene graphScene = new StatisticsScene(_model);
             _mainLayout.setCenter(graphScene.createScene());//set center pane to the StatisticsScene's layout node
         });
         _viewWordsButton.setOnAction(event -> {
+            _toggleButtonSound.stop();
+            _toggleButtonSound.play();
             FileChooserScene chooserScene = new FileChooserScene(_model);
             _mainLayout.setCenter(chooserScene.getLayout());
         });
 
         _resetButton.setOnAction(event -> {
+            _toggleButtonSound.stop();
+            _toggleButtonSound.play();
             final VBox resetVbox = new VBox(20);
             resetVbox.setPadding(new Insets(40,50,40,40));
             resetVbox.setAlignment(Pos.TOP_CENTER);
@@ -344,6 +387,8 @@ public class InitialScene {
             confirmButton.setStyle("-fx-font: bold 15 arial; -fx-background-radius: 10 10 10 10");
 
             confirmButton.setOnAction(e->{
+                _buttonSound.stop();
+                _buttonSound.play();
                 _model.recreate();
                 caption4.setVisible(true);
             });
@@ -351,6 +396,9 @@ public class InitialScene {
             _mainLayout.setCenter(resetVbox);
         });
         playButton.setOnAction(event ->{
+            _mediaPlayer.stop();
+            _buttonSound.stop();
+            _buttonSound.play();
             SpellingQuizScene newGameSceneCreator = new SpellingQuizScene(_model, _window, _review);
             Scene newGameScene = newGameSceneCreator.createScene();
             _window.setScene(newGameScene);

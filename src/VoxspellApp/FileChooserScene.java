@@ -11,6 +11,8 @@ import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import models.Level;
@@ -21,6 +23,7 @@ import sun.jvm.hotspot.opto.Block_List;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -50,11 +53,14 @@ public class FileChooserScene {
     //combobox items
     String _filePath;
 
+    MediaPlayer _buttonSound;
+
 
 
     public FileChooserScene(WordModel model){
         _model = model;
         _filePath = model.getFilePath();
+        _buttonSound = createSound("/MediaResources/264447__kickhat__open-button-2.wav");
 
         _mainLayout = new BorderPane();
         Label title = new Label("Change Spelling List");
@@ -150,6 +156,8 @@ public class FileChooserScene {
 
     private void setEventHandlers(){
         _newListButton.setOnAction(e -> {
+            _buttonSound.stop();
+            _buttonSound.play();
             Stage mainStage = (Stage)_newListButton.getScene().getWindow();
 
             FileChooser fileChooser = new FileChooser();
@@ -186,6 +194,8 @@ public class FileChooserScene {
         });
 
         _createListButton.setOnAction(e->{
+            _buttonSound.stop();
+            _buttonSound.play();
             ListCreatorScene customList = new ListCreatorScene(_model.getMasterModel(), _model);
             if(customList.display()){
                 setComboBoxLayout();
@@ -196,5 +206,12 @@ public class FileChooserScene {
             }
 
         });
+    }
+
+    protected MediaPlayer createSound(String address){
+        final URL resource = getClass().getResource(address);
+        final Media media = new Media(resource.toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        return mediaPlayer;
     }
 }
