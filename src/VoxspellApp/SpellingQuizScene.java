@@ -75,6 +75,7 @@ public class SpellingQuizScene {
     //STORAGE
     private ArrayList<Circle> _circleList = new ArrayList<Circle>();
     private int _position;
+    private int _wordNum;
     private int miceNum;
     private int _miceHowMany;
     private int _numberMastered;
@@ -129,6 +130,7 @@ public class SpellingQuizScene {
         _gameArea = new GridPane();
         _gameArea.setPadding(new Insets(60,0,0,0));
         miceNum = _wordModel.getSpellingList(_review).size();
+        _wordNum = miceNum-1;
         _miceHowMany = miceNum;
         miceNum--;
 
@@ -311,17 +313,17 @@ public class SpellingQuizScene {
             _circleList.get(_position).setStyle("-fx-fill: rgb(90,175,90);");
             _numberMastered++;
             _accuracy++;
-            _position++;
-            colorAccuracy(_accuracy/_position * 100);
+            _position--;
+            colorAccuracy(_accuracy/(_wordNum-_position) * 100);
         } else if (status.equals(Status.Faulted)) {
             _circleList.get(_position).setStyle("-fx-fill: rgb(230,160,40);");
-            _position++;
-            colorAccuracy(_accuracy/_position * 100);
+            _position--;
+            colorAccuracy(_accuracy/(_wordNum-_position) * 100);
         } else if (status.equals(Status.Failed)) {
             _circleList.get(_position).setStyle("-fx-fill: rgb(225,100,50);");
             _circleList.get(_position).setStyle("-fx-fill: rgb(225,100,50);");
-            _position++;
-            colorAccuracy(_accuracy/_position * 100);
+            _position--;
+            colorAccuracy(_accuracy/(_wordNum-_position) * 100);
         }
     }
 
@@ -342,7 +344,7 @@ public class SpellingQuizScene {
 
     private void reset() {
         resetAccuracyHandlers();
-        _position = 0;
+        _position = _wordModel.getSpellingList(_review).size();
         _accuracy = 0;
         setUpGameArea();
         _accuracyLabel.setText("---.--%");
@@ -540,7 +542,7 @@ public class SpellingQuizScene {
         _startQuizButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                _position = 0;
+                _position = _wordModel.getSpellingList(_review).size()-1;
                 _numberMastered = 0;
                 _startQuizButton.setDisable(true);
                 _inputText.setDisable(false);
