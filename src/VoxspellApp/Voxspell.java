@@ -59,7 +59,7 @@ public class Voxspell extends Application {
         });
 
         try{
-            _model = new WordModel("NZCER-spelling-lists.txt", _masterModel);
+            _model = new WordModel("custom_texts/NZCER-spelling-lists.txt", _masterModel);
         } catch (IOException e){
             closeProgram("Spelling list was not found. Continuing may corrupt the program. Quit?");
         }

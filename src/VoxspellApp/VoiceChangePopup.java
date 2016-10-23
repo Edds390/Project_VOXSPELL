@@ -80,6 +80,9 @@ public class VoiceChangePopup {
             String option = (String)_voiceCombo.getValue();
             if (!option.equals(_oldVoice)){
                 _voiceOption = option;
+                Festival.changeVoice(option);
+                Festival.festivalTTS("Lets catch some mice!");
+                Festival.changeVoice(_oldVoice);
                 _applyButton.setDisable(false);
             } else {//same voice option
                 _applyButton.setDisable(true);

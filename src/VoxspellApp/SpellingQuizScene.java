@@ -8,6 +8,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
@@ -75,6 +78,7 @@ public class SpellingQuizScene {
     private Button _stayButton = new Button("Stay");
     private Button _nextLevelButton = new Button("Next Level");
     private Button _mainMenu = new Button("Main Menu");
+    private Button _helpButton = new Button("?");
 
     //STORAGE
     private ArrayList<Circle> _circleList = new ArrayList<Circle>();
@@ -97,7 +101,10 @@ public class SpellingQuizScene {
     private MediaPlayer _mediaPlayer;
     private MediaPlayer _rewardSound;
     private MediaPlayer _failedSound;
+    private MediaPlayer _toggleSound;
     private MediaPlayer _buttonSound;
+
+    private final Effect glow = new Glow(1.0);
 
 
 
@@ -111,8 +118,16 @@ public class SpellingQuizScene {
         final URL resource = getClass().getResource("/MediaResources/264447__kickhat__open-button-2.wav");
         final Media media = new Media(resource.toString());
         _buttonSound = new MediaPlayer(media);
+
         _rewardSound = bgm("/MediaResources/353543__maxmakessounds__happy-theme.wav");
         _failedSound = bgm("/MediaResources/Meow.m4a");
+        //set the functionality of the help button
+        _helpButton.setStyle("-fx-font: bold 30 latoheavy; -fx-base: #1db361; " +
+                "-fx-background-radius: 40 40 40 40; -fx-text-fill:  white; -fx-border: 20px; -fx-border-color: white; -fx-border-radius: 40");
+        _helpButton.setOnAction(e->{
+            HelpWindow help = new HelpWindow(2);
+            help.display();
+        });
 
         this._wordModel = wordModel;
         this._window = window;
@@ -230,6 +245,13 @@ public class SpellingQuizScene {
         _levelTitle.setText("Level " + _wordModel.getCurrentLevel());
         _levelTitle.setStyle("-fx-font: bold 40 arial; -fx-base: #fbb040; -fx-text-fill: white");
 
+        Label space2 = new Label("\t\t");
+        space2.setStyle("-fx-font: bold 40 arial; -fx-base: #fbb040; -fx-text-fill: white");
+
+        Label space1 = new Label("\t\t\t   ");
+        space1.setStyle("-fx-font: bold 40 arial; -fx-base: #fbb040; -fx-text-fill: white");
+
+
         if (_review) {
             _modeTitle.setText("Review Quiz");
         } else {
@@ -237,7 +259,7 @@ public class SpellingQuizScene {
         }
         _modeTitle.setStyle("-fx-font: bold 40 arial; -fx-base: #fbb040; -fx-text-fill: white");
 
-        _statusArea.getChildren().addAll(_levelTitle,_modeTitle);
+        _statusArea.getChildren().addAll(space1,_levelTitle,_modeTitle, space2, _helpButton);
     }
 
     private void setUpButtonArea() {
@@ -336,19 +358,28 @@ public class SpellingQuizScene {
     }
 
     private void updateCircle(Status status) {
+        DropShadow glow = new DropShadow();
+        glow.setOffsetX(0f);
+        glow.setOffsetY(0f);
+        glow.setRadius(50);
         if (status.equals(Status.Mastered)) {
+            glow.setColor(Color.GREEN);
             _circleList.get(_position).setStyle("-fx-fill: rgb(90,175,90);");
+            _circleList.get(_position).setEffect(glow);
             _numberMastered++;
             _accuracy++;
             _position--;
             colorAccuracy(_accuracy/(_wordNum-_position) * 100);
         } else if (status.equals(Status.Faulted)) {
+            glow.setColor(Color.ORANGE);
             _circleList.get(_position).setStyle("-fx-fill: rgb(230,160,40);");
+            _circleList.get(_position).setEffect(glow);
             _position--;
             colorAccuracy(_accuracy/(_wordNum-_position) * 100);
         } else if (status.equals(Status.Failed)) {
+            glow.setColor(Color.RED);
             _circleList.get(_position).setStyle("-fx-fill: rgb(225,100,50);");
-            _circleList.get(_position).setStyle("-fx-fill: rgb(225,100,50);");
+            _circleList.get(_position).setEffect(glow);
             _position--;
             colorAccuracy(_accuracy/(_wordNum-_position) * 100);
         }

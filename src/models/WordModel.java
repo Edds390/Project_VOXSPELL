@@ -38,11 +38,11 @@ public class WordModel implements Resettable, Serializable {
     private String _title;
 
     public WordModel(String spellingListPath, MasterModel masterModel) throws IOException{
-        _title = spellingListPath;
+        _title = "NZ Spelling List";
         checkSerExists(spellingListPath);
         _masterModel = masterModel;
         _masterModel.addToMaster(this);
-        _masterModel.addAddress(spellingListPath, spellingListPath);
+        _masterModel.addAddress("NZ Spelling List", spellingListPath);
 
     }
 
@@ -58,7 +58,7 @@ public class WordModel implements Resettable, Serializable {
     }
 
     private void checkSerExists(String spellingListPath) throws IOException{
-        _file = new File("."+_title+".ser");
+        _file = new File(".ser/."+_title+".ser");
         _spellingListPath = spellingListPath;
         //serializble already exists; not new game
         if (_file.exists()) {

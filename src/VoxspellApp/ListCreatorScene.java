@@ -316,13 +316,13 @@ public class ListCreatorScene {
             _sound.stop();
             _sound.play();
             if(_isSaved){
-                String filePath="CustomFile.txt";
+                String filePath="custom_texts/CustomFile1.txt";
                 File file = new File(filePath);
                 int i = 1;
 
                 // if file doesnt exists, then create it
                 while(file.exists()){
-                    filePath ="CustomFile"+i+".txt";
+                    filePath ="custom_texts/CustomFile"+i+".txt";
                     file = new File(filePath);
 
                     i++;
@@ -333,8 +333,8 @@ public class ListCreatorScene {
                     BufferedWriter bw = new BufferedWriter(fw);
                     bw.write(output.toString().trim());
                     bw.close();
-                    _model.getMasterModel().addAddress(filePath, filePath);
-                    _model.newList(filePath);
+                    _model.getMasterModel().addAddress("CustomFile"+i, filePath);
+                    _model.newList("CustomFile"+i);
                 } catch (IOException e1) {
                     WarningBox wb = new WarningBox();
                     wb.display("Save Error", "Spelling list could not be created.");

@@ -45,6 +45,7 @@ public class FileChooserScene {
     private Button _newListButton;
     private Button _deleteListButton;
     private Button _createListButton;
+    private Button _helpButton;
 
     //ListViews
     private VBox _categoryLayout;
@@ -58,6 +59,14 @@ public class FileChooserScene {
 
 
     public FileChooserScene(WordModel model){
+        _helpButton = new Button("?");
+        _helpButton.setStyle("-fx-font: bold 30 latoheavy; -fx-base: #1db361; " +
+                "-fx-background-radius: 40 40 40 40; -fx-text-fill:  white; -fx-border: 20px; -fx-border-color: white; -fx-border-radius: 40");
+        _helpButton.setOnAction(e->{
+            HelpWindow help = new HelpWindow(3);
+            help.display();
+        });
+
         _model = model;
         _filePath = model.getFilePath();
         _buttonSound = createSound("/MediaResources/264447__kickhat__open-button-2.wav");
@@ -82,9 +91,11 @@ public class FileChooserScene {
         _comboBoxLayout = new VBox(10);
 
 
+        HBox topBox = new HBox();
         Label cFile = new Label("Current File: " + _model.getTitle());
+        Label space = new Label("\t\t\t\t\t\t\t\t\t\t");
         cFile.setStyle("-fx-font: bold 24 arial; -fx-text-fill: white; -fx-underline: true");
-
+        topBox.getChildren().addAll(cFile, space,_helpButton);
 
         HBox comboLayout = new HBox(10);
         //combobox
@@ -104,7 +115,7 @@ public class FileChooserScene {
         comboLayout.getChildren().addAll(_listCombo, buttonBox);
         comboLayout.setAlignment(Pos.CENTER);
 
-        _comboBoxLayout.getChildren().addAll(cFile, comboLayout);
+        _comboBoxLayout.getChildren().addAll(topBox, comboLayout);
         _comboBoxLayout.setAlignment(Pos.CENTER);
         _comboBoxLayout.setPadding(new Insets(8,8,35,8));
 

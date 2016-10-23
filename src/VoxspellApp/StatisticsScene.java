@@ -13,6 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -21,6 +22,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -46,6 +48,8 @@ public class StatisticsScene {
     private ScrollPane _graphSceneLayout;
     private int _bargraphHeight;
 
+    private Button _helpButton;
+
 
     private int _level;
 
@@ -61,6 +65,13 @@ public class StatisticsScene {
 
     public Node createScene(){
 
+        _helpButton = new Button("?");
+        _helpButton.setStyle("-fx-font: bold 30 latoheavy; -fx-base: #1db361; " +
+                "-fx-background-radius: 40 40 40 40; -fx-text-fill:  white; -fx-border: 20px; -fx-border-color: white; -fx-border-radius: 40");
+        _helpButton.setOnAction(e->{
+            HelpWindow help = new HelpWindow(2);
+            help.display();
+        });
         _model.updateStatistics();//updates the statistics of the WordModel
 
         VBox optionLayout = new VBox(20);
@@ -100,6 +111,7 @@ public class StatisticsScene {
 
                     Label accuracy = new Label(String.format("%.2f", percentages[2])+"%");
                     accuracy.setStyle("-fx-font: bold 28 arial ;-fx-text-fill: white");
+                    accuracy.setAlignment(Pos.CENTER);
                     graphLayout.getChildren().addAll(accuracy, levelPie);
                     drawPieLabels(levelPie, graphLayout);
                     graphLayout.getChildren().add(levelBar);
@@ -116,6 +128,12 @@ public class StatisticsScene {
         _menu.setFitToWidth(true);//expand scrollpane x-wise
 
         VBox graphLayout = new VBox(15);
+
+        HBox helpBox = new HBox();
+        helpBox.setAlignment(Pos.CENTER_RIGHT);
+        helpBox.getChildren().add(_helpButton);
+        graphLayout.getChildren().add(_helpButton);
+
         graphLayout.setAlignment(Pos.CENTER);
         graphLayout.setPadding(new Insets(10,10,10,10));
         //TODO VBox add pie graph of overall statistic
@@ -183,7 +201,8 @@ public class StatisticsScene {
         final PieChart pieGraph = new PieChart(pieData);
 
         pieGraph.setTitle("Overall Accuracy");
-        pieGraph.setStyle(".bargraph");
+
+        pieGraph.setStyle(".bargraph; -fx-text-fill: white");
         return pieGraph;
     }
 

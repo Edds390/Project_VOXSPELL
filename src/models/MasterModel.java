@@ -12,7 +12,7 @@ public class MasterModel implements Serializable{
     private static final long serialVersionUID = 123L;
     private Map<String, WordModel> _masterMap;
     private Map<String, String> _titleDictionary;
-    private File _file = new File(".MasterModel.ser");
+    private File _file = new File(".ser/.MasterModel.ser");
 
 
     public MasterModel(){
@@ -46,7 +46,7 @@ public class MasterModel implements Serializable{
     public void addToMaster(WordModel wordModel){
         _masterMap.put(wordModel.getTitle(), wordModel);
         try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(".MasterModel.ser"));
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(".ser/.MasterModel.ser"));
             oos.writeObject(this);
             oos.close();
         } catch (IOException e) {
@@ -78,4 +78,9 @@ public class MasterModel implements Serializable{
     public Set<String> getMapKeyset(){
         return _masterMap.keySet();
     }
+
+    public Set<String> getDictionaryKeyset(){
+        return _titleDictionary.keySet();
+    }
+
 }

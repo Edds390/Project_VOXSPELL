@@ -11,16 +11,19 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import models.Festival;
 import models.WordModel;
 
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URL;
 import java.util.Set;
@@ -51,6 +54,8 @@ public class InitialScene {
     private ToggleButton _viewWordsButton;
     private ToggleButton _resetButton;
     private Button playButton;
+    private Button _helpButton;
+    private int _helpStatus;
 
     private Label tipLabel1;
     private Label tipLabel2;
@@ -74,6 +79,11 @@ public class InitialScene {
         playButton = new Button("PLAY");
         playButton.setStyle("-fx-font: bold 64 latoheavy; -fx-base: #fbb040; -fx-background-radius: 10 10 10 10; -fx-text-fill:  white;");
         playButton.setPrefSize(325, 285);
+
+        _helpButton = new Button("?");
+        _helpButton.setStyle("-fx-font: bold 30 latoheavy; -fx-base: #1db361; " +
+                "-fx-background-radius: 40 40 40 40; -fx-text-fill:  white; -fx-border: 20px; -fx-border-color: white; -fx-border-radius: 40");
+        _helpStatus=0;
 
         VBox menuSceneLayout = setMenuScene();//sets the left-hand side menu panel
         GridPane gameSceneLayout = setGameScene();//sets the right-hand side main
@@ -135,6 +145,7 @@ public class InitialScene {
         _resetButton = createMenuButtons("MediaResources/newGame.png", "RESET");
         _viewWordsButton = createMenuButtons("MediaResources/newGame.png", "VIEW WORDS");
 
+
         menuSceneLayout.setPadding(new Insets(10));//insets: top right bottom left
         menuSceneLayout.getChildren().addAll(_newGameButton, _reviewGameButton, _statisticsButton, _viewWordsButton, _resetButton);
         menuSceneLayout.getStyleClass().add("vbox");//add the custom vbox layout style
@@ -163,6 +174,15 @@ public class InitialScene {
         if (caption.equals("NEW")){
             newButton.setSelected(true);
         }
+        newButton.setOnMouseEntered(e->{
+            DropShadow glow = new DropShadow();
+            glow.setRadius(30);
+            glow.setColor(Color.GREEN);
+            newButton.setEffect(glow);
+        });
+        newButton.setOnMouseExited(e->{
+            newButton.setEffect(null);
+        });
         return newButton;
     }
 
@@ -185,30 +205,20 @@ public class InitialScene {
         levelLabel.setAlignment(Pos.CENTER);
         GridPane.setConstraints(levelLabel, 0, 0);
 
+        for(int i = 1; i<12; i++){
+            Label space = new Label("  ");
+            GridPane.setConstraints(space, i, 0);
+            gameGrid.getChildren().add(space);
+        }
+
+        GridPane.setConstraints(_helpButton, 12, 0);
+
         ToggleGroup levelToggles = setLevelButtons(_model.getTotalLevels(), gameGrid);
 
         Label voiceLabel = new Label("Voice");
         voiceLabel.setStyle("-fx-font: bold 25 latoheavy; -fx-text-fill:  white;");
         voiceLabel.setAlignment(Pos.CENTER);
         GridPane.setConstraints(voiceLabel, 0, 3);
-
-
-        /*
-
-        _newTip.setStyle("-fx-font: 16 arial");
-
-        if (_review) {
-            setUpReviewToolTip();
-        } else {
-            setUpNewToolTip();
-        }
-
-        tipLabel4.setStyle("-fx-text-fill: white");
-        tipLabel2.setStyle("-fx-text-fill: white");
-        tipLabel3.setStyle("-fx-text-fill: white");
-        tipLabel1.setStyle("-fx-text-fill: white");
-        */
-
 
         //set up combo box for choosing levels
         _voiceOptionCombo = new ComboBox<String>();
@@ -221,6 +231,7 @@ public class InitialScene {
         _voiceOptionCombo.setOnAction(event -> {
             String option = (String)_voiceOptionCombo.getValue();
             Festival.changeVoice(option);
+            Festival.festivalTTS("Hi, are you ready to catch some mice?");
         });
         GridPane.setConstraints(_voiceOptionCombo, 0, 4);
 
@@ -232,7 +243,7 @@ public class InitialScene {
         //make the combobox for spelling list
         ObservableList<String> options = FXCollections.observableArrayList();
         listCombo = new ComboBox<String>(options);
-        Set<String> listSet = _model.getMasterModel().getMapKeyset();
+        Set<String> listSet = _model.getMasterModel().getDictionaryKeyset();
         for (String list : listSet){
             listCombo.getItems().add(list);
         }
@@ -240,7 +251,7 @@ public class InitialScene {
         listCombo.setStyle("-fx-font: 20 latoheavy; -fx-background-radius: 20 20 20 20");
         GridPane.setConstraints(listCombo, 0, 6);
 
-        gameGrid.getChildren().addAll(levelLabel, voiceLabel, _voiceOptionCombo, listLabel, listCombo);//removed newtip
+        gameGrid.getChildren().addAll(levelLabel, voiceLabel, _voiceOptionCombo, listLabel, listCombo, _helpButton);//removed newtip
 
         GridPane.setConstraints(playButton, 0, 10);
         gameGrid.getChildren().add(playButton);
@@ -283,12 +294,22 @@ public class InitialScene {
             levelButton.setPrefWidth(50);
             levelButton.setText("" + i);
             levelButton.setUserData(i);
-            levelButton.setStyle("-fx-font: 18 arial;-fx-background-radius: 25 25 25 25");
+            levelButton.setStyle("-fx-font: 18 arial;-fx-background-radius: 25 25 25 25;");
             //upon button click, update model's level
             levelButton.setOnAction(e->{
                 _toggleButtonSound.stop();
                 _toggleButtonSound.play();
                 _model.updateLevel(Integer.parseInt(levelButton.getText()));
+            });
+            levelButton.setOnMouseEntered(e->{
+                DropShadow glow = new DropShadow();
+                glow.setRadius(18);
+                glow.setColor(Color.GREEN);
+                levelButton.setEffect(glow);
+            });
+            levelButton.setOnMouseExited(e->{
+                DropShadow glow = new DropShadow();
+                levelButton.setEffect(null);
             });
 
             if (i ==1){
@@ -338,6 +359,7 @@ public class InitialScene {
 
     private void setupEventHandlers(){
         _newGameButton.setOnAction(event -> {
+            _helpStatus=0;
             _toggleButtonSound.stop();
             _toggleButtonSound.play();
             _review = false;
@@ -345,6 +367,7 @@ public class InitialScene {
             _mode=Mode.NEW;
         });
         _reviewGameButton.setOnAction(event -> {
+            _helpStatus=1;
             _toggleButtonSound.stop();
             _toggleButtonSound.play();
             _review = true;
@@ -352,12 +375,14 @@ public class InitialScene {
             _mode=Mode.REVIEW;
         });
         _statisticsButton.setOnAction(event -> {
+            _helpStatus=2;
             _toggleButtonSound.stop();
             _toggleButtonSound.play();
             StatisticsScene graphScene = new StatisticsScene(_model);
             _mainLayout.setCenter(graphScene.createScene());//set center pane to the StatisticsScene's layout node
         });
         _viewWordsButton.setOnAction(event -> {
+            _helpStatus=3;
             _toggleButtonSound.stop();
             _toggleButtonSound.play();
             FileChooserScene chooserScene = new FileChooserScene(_model);
@@ -365,6 +390,7 @@ public class InitialScene {
         });
 
         _resetButton.setOnAction(event -> {
+            _helpStatus=4;
             _toggleButtonSound.stop();
             _toggleButtonSound.play();
             final VBox resetVbox = new VBox(20);
@@ -395,6 +421,15 @@ public class InitialScene {
             resetVbox.getChildren().addAll(title,  rsImageContainer,caption1,caption2,caption3, confirmButton, caption4);
             _mainLayout.setCenter(resetVbox);
         });
+        playButton.setOnMouseEntered(e->{
+            DropShadow glow = new DropShadow();
+            glow.setRadius(40);
+            glow.setColor(Color.ORANGE);
+            playButton.setEffect(glow);
+        });
+        playButton.setOnMouseExited(e->{
+            playButton.setEffect(null);
+        });
         playButton.setOnAction(event ->{
             _mediaPlayer.stop();
             _buttonSound.stop();
@@ -412,6 +447,10 @@ public class InitialScene {
             _mainLayout.setCenter(gameSceneLayout);
             setupEventHandlers();
 
+        });
+        _helpButton.setOnAction(e->{
+            HelpWindow help = new HelpWindow(_helpStatus);
+            help.display();
         });
     }
 
