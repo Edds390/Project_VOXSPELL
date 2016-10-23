@@ -134,7 +134,7 @@ public class StatisticsScene {
 
         graphLayout.setAlignment(Pos.CENTER);
         graphLayout.setPadding(new Insets(10,10,10,10));
-        //TODO VBox add pie graph of overall statistic
+
         PieChart pie = createOverallPie();
         pie.setStyle("-fx-tick-label-fill: white");
         double[] percentages = getPercentage(pie.getData());
@@ -266,7 +266,7 @@ public class StatisticsScene {
 
                     percentage.setTranslateX(event.getX());
                     percentage.setTranslateY(event.getY() - 240);
-                    percentage.setText(String.valueOf(data.getPieValue()) + "%");
+                    percentage.setText(String.format("%.2f", data.getPieValue()) + "%");
                 }
             });
         }

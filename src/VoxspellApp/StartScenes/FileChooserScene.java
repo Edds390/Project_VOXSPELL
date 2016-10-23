@@ -185,8 +185,6 @@ public class FileChooserScene {
                 setEventHandlers();
 
 
-            } else {
-                //TODO prompt user saying file not found
             }
 
         });

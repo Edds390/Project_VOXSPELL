@@ -1,5 +1,7 @@
 package models;
 
+import VoxspellApp.Popups.ConfirmQuitBox;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,13 +28,16 @@ public class MasterModel implements Serializable{
 
                     ois.close();
                 } catch (ClassNotFoundException e) {
-
+                    ConfirmQuitBox quit = new ConfirmQuitBox();
+                    quit.display("Corrupt Program", "Please ensure \".ser\" folder exists in your current directory.");
                 }
 
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                ConfirmQuitBox quit = new ConfirmQuitBox();
+                quit.display("Corrupt Program", "Please ensure \".ser\" folder exists in your current directory.");
             } catch (IOException e) {
-                e.printStackTrace();
+                ConfirmQuitBox quit = new ConfirmQuitBox();
+                quit.display("Corrupt Program", "Please ensure \".ser\" folder exists in your current directory.");
             }
 
 
@@ -50,7 +55,8 @@ public class MasterModel implements Serializable{
             oos.writeObject(this);
             oos.close();
         } catch (IOException e) {
-            //TODO prompt io exception
+            ConfirmQuitBox quit = new ConfirmQuitBox();
+            quit.display("Corrupt Program", "Please ensure \".ser\" folder exists in your current directory.");
         }
     }
 
@@ -60,10 +66,6 @@ public class MasterModel implements Serializable{
     }
 
     public String getAddress(String title){
-        if (_titleDictionary.get(title) == null){
-            //TODO prompt io exception
-            System.out.println("error state");
-        }
         return _titleDictionary.get(title);
     }
 

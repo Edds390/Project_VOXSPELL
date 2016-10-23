@@ -28,12 +28,11 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.net.URL;
 import java.nio.file.Paths;
 
 /**
  * Created by edson on 18/09/16.
- * TODO set the setup to worker thread
- * TODO use mediaFilePath for Paths.get()
  * Creates a media player popup window.
  */
 public class VideoPlayer {
@@ -49,7 +48,9 @@ public class VideoPlayer {
 
     public VideoPlayer(){
 
-        Media video = new Media(Paths.get("big_buck_bunny_1_minute.mp4").toUri().toString());//TODO use mediaFilePath
+        //set the URL of video and play it
+        URL address = getClass().getResource("/MediaResources/big_buck_bunny_1_minute.mp4");
+        Media video = new Media(address.toString());
         _player = new MediaPlayer(video);
 
     }

@@ -287,7 +287,7 @@ public class SpellingQuizScene {
     }
 
     private void setUpAccuracyTitles() {
-        _accuracyArea.setPadding(new Insets(5,0,0,0));//TODO was 20
+        _accuracyArea.setPadding(new Insets(5,0,0,0));
         _accuracyArea.setAlignment(Pos.CENTER);
 
         _accuracyTitle.setText("Accuracy");
@@ -571,7 +571,7 @@ public class SpellingQuizScene {
             //_definitionButton.setDisable(true);
             _submitButton.setDisable(true);
             _inputText.setDisable(true);
-            //TODO delete _wordModel.StatsAccessibleOn();//turn on access to statistics for this level
+
             if (_review) {
                 setUpReviewGui();
             } else if ((double)_numberMastered/Voxspell.COUNT >= 0.9) {
@@ -671,12 +671,13 @@ public class SpellingQuizScene {
             }
         });
 
-        //TODO worker thread here
+
         _videoButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 _buttonSound.stop();
                 _buttonSound.play();
+                _rewardSound.stop();
                 VideoPlayer video = new VideoPlayer();
                 video.display();
             }

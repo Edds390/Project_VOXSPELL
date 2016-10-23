@@ -1,6 +1,7 @@
 package models;
 
 import VoxspellApp.Popups.ConfirmQuitBox;
+import VoxspellApp.Popups.WarningBox;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -48,9 +49,14 @@ public class WordModel implements Resettable, Serializable {
 
         try {
             checkSerExists(_masterModel.getAddress(fileName));
-        } catch (IOException e) {
-            e.printStackTrace();
-            //TODO prompt user file doesnt exist
+        } catch (IOException x) {
+            if(x.getMessage().equals("1")) {
+                WarningBox corruptList = new WarningBox();
+                corruptList.display("Wrong List", "This is not a spelling list!");
+            } else if (x.getMessage().equals("12")){
+                WarningBox tooManyLevels = new WarningBox();
+                tooManyLevels.display("Wrong List", "Too many categories! 11 is the maximum number.");
+            }
         }
     }
 
@@ -74,10 +80,12 @@ public class WordModel implements Resettable, Serializable {
                     _categoryDictionary = wordModel.getCategoryMap();
                     ois.close();
                 } catch (ClassNotFoundException e) {
+                    ConfirmQuitBox quit = new ConfirmQuitBox();
+                    quit.display("Corrupt Program", "Please ensure \".ser\" folder exists in your current directory.");
 
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                //method signature; can never be reached
             }
         } else {//new game
             makeNewModel();
@@ -101,7 +109,7 @@ public class WordModel implements Resettable, Serializable {
         BufferedReader br = new BufferedReader(fr);
         currentLine = br.readLine();
         if (!currentLine.substring(0,1).equals("%")){//check if word not level
-            throw new IOException();//TODO create exception class for invalid IO of text input
+            throw new IOException("1");
         } else {
             currentLevel = new Level(currentLevelValue);
             _levelList = new ArrayList<>();
@@ -114,6 +122,9 @@ public class WordModel implements Resettable, Serializable {
             if (!currentLine.substring(0,1).equals("%")){//check if word not level
                 currentLevel.addWord(currentLine);//add to level object
             } else {
+                if(currentLevelValue>=12){
+                    throw new IOException("12");
+                }
                 currentLevel = new Level(currentLevelValue);
                 _levelList.add(currentLevel);
                 _categoryList.add(currentLine.substring(1));
@@ -138,7 +149,6 @@ public class WordModel implements Resettable, Serializable {
 
 
     //reset signal propagate to contained object
-    //TODO should consider reset to make a new WordModel object
     public void reset(){
         for (Level level : _levelList){
             level.reset();
@@ -253,7 +263,8 @@ public class WordModel implements Resettable, Serializable {
             _masterModel.addToMaster(this);
 
         } catch (IOException e) {
-
+            WarningBox warn = new WarningBox();
+            warn.display("Corrupt Program", "Please choose another file.");
         }
     }
 
@@ -270,8 +281,13 @@ public class WordModel implements Resettable, Serializable {
             try {
                 makeNewModel();//make new model
             } catch (IOException x){
-                ConfirmQuitBox quitBox = new ConfirmQuitBox();
-                quitBox.display("Corrupted Spelling List", "Spelling list is corrupted. Quit the program?");
+                if(x.getMessage().equals("1")) {
+                    WarningBox corruptList = new WarningBox();
+                    corruptList.display("Wrong List", "This is not a spelling list!");
+                } else if (x.getMessage().equals("11")){
+                    WarningBox tooManyLevels = new WarningBox();
+                    tooManyLevels.display("Wrong List", "Too many categories! 11 is the maximum number.");
+                }
 
             }
         }
