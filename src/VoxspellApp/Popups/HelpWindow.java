@@ -59,41 +59,43 @@ public class HelpWindow {
     private void setupImageList(){
         if(helpWindow==0){
             imageNumber=5;
-            _imageViewArray= new ImageView[]{makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png")};
+            _imageViewArray= new ImageView[]{makeImage("MediaResources/tutorial/n1.PNG"),
+            makeImage("MediaResources/tutorial/n2.PNG"),
+            makeImage("MediaResources/tutorial/n3.PNG"),
+            makeImage("MediaResources/tutorial/n4.PNG"),
+            makeImage("MediaResources/tutorial/n5.PNG")};
 
 
         } else if (helpWindow== 1){
             imageNumber=5;
-            _imageViewArray = new ImageView[]{makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png")};
+            _imageViewArray = new ImageView[]{makeImage("MediaResources/tutorial/r1.PNG"),
+            makeImage("MediaResources/tutorial/r2.PNG"),
+            makeImage("MediaResources/tutorial/n3.PNG"),
+            makeImage("MediaResources/tutorial/n4.PNG"),
+            makeImage("MediaResources/tutorial/n5.PNG")};
         } else if (helpWindow == 2){
-            imageNumber=4;
-            _imageViewArray = new ImageView[]{makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png")};
+            imageNumber=3;
+            _imageViewArray = new ImageView[]{makeImage("MediaResources/tutorial/s1.PNG"),
+            makeImage("MediaResources/tutorial/s2.PNG"),
+            makeImage("MediaResources/tutorial/s3.PNG")};
         } else if (helpWindow == 3) {
             imageNumber=5;
-            _imageViewArray = new ImageView[]{makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png")};
+            _imageViewArray = new ImageView[]{makeImage("MediaResources/tutorial/v1.PNG"),
+            makeImage("MediaResources/tutorial/v2.PNG"),
+            makeImage("MediaResources/tutorial/v3.PNG"),
+            makeImage("MediaResources/tutorial/v4.PNG"),
+            makeImage("MediaResources/tutorial/v5.PNG")};
         } else if (helpWindow == 4){
             imageNumber=2;
-            _imageViewArray = new ImageView[]{makeImage("MediaResources/catplaysflute.png"),
-            makeImage("MediaResources/catplaysflute.png")};
+            _imageViewArray = new ImageView[]{makeImage("MediaResources/tutorial/g1.PNG"),
+            makeImage("MediaResources/tutorial/g2.PNG"),
+            makeImage("MediaResources/tutorial/g3.PNG")};
         }
     }
 
     private ImageView makeImage(String address){
         ImageView imv = new ImageView();
-        Image img = new Image(address, 250, 250, false, true);
+        Image img = new Image(address, 850, 390, false, true);
         imv.setImage(img);
         return imv;
     }

@@ -25,6 +25,16 @@ https://www.freesound.org/people/magedu/sounds/264388/
 Normal Button
 https://www.freesound.org/people/kickhat/sounds/264447/
 
+bgm of game:
+https://www.freesound.org/people/keweldog/sounds/223179/
+Correct sound:
+https://www.freesound.org/people/timtube/sounds/60960/
+fault:
+https://www.freesound.org/people/thearxx08/sounds/333916/
+
+warning:
+https://www.freesound.org/people/Greencouch/sounds/124905/
+
  */
 
 public class Voxspell extends Application {

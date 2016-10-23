@@ -14,36 +14,47 @@ import java.util.Map;
 
 /**
  * Created by edson on 15/09/16.
+ * Represents the abstraction of the overall Wordmodel.
+ * A wordmodel is specific to a particular spelling list.
+ * The wordmodel stores all the levels, whivh in turn stores all the words.
+ * It stores all the statistics that is specific to that particular spelling list.
+ * It is the primary interface between the views and the data models.
  */
 public class WordModel implements Resettable, Serializable {
     private static final long serialVersionUID = 1L;
 
-    private MasterModel _masterModel;
-    List<String> _categoryList;
+    private MasterModel _masterModel;//model that stores wordModel
+    List<String> _categoryList;//stores the names of the level's name
     List<Level> _levelList;//arraylist of Level objects
-    private int _totalLevels;
-    private  int _currentLevel;
+    private int _totalLevels;//number of levels
+    private  int _currentLevel;//current level the user is in
     //private int _accessLevel = 1;//int of user's highest accessible level
 
-    private boolean[] _accessStats;
+    private boolean[] _accessStats;//accessibility of that particular level
     private List<int[]> _accuracyList;//list of int arrays showing statistic for each level
     private int[] _overallStatstic;//int array of overall frequency of each mastered(2),faulted(1),failed(0)
-    private Map<String, Integer> _categoryDictionary;
+    private Map<String, Integer> _categoryDictionary;//links the level name to the level integer
 
-    private String _spellingListPath;
-    private File _file;
+    private String _spellingListPath;//path of the spelling list
+    private File _file;//file of spelling list
 
-    private String _title;
+    private String _title;//simple name of spelling list
 
     public WordModel(String spellingListPath, MasterModel masterModel) throws IOException{
         _title = "NZ Spelling List";
-        checkSerExists(spellingListPath);
+        checkSerExists(spellingListPath);//check if it exists otherwise makes a new one
         _masterModel = masterModel;
-        _masterModel.addToMaster(this);
+        _masterModel.addToMaster(this);//stores the wordmodel to the master model
         _masterModel.addAddress("NZ Spelling List", spellingListPath);
 
     }
 
+    /**
+     * Creates a wordmodel based on a new spelling list.
+     * If it already exists, then uses the serializable history to import
+     * its statistics.
+     * @param fileName simple name of the spelling list
+     */
     public void newList(String fileName){
         _title = fileName;
 
@@ -52,14 +63,21 @@ public class WordModel implements Resettable, Serializable {
         } catch (IOException x) {
             if(x.getMessage().equals("1")) {
                 WarningBox corruptList = new WarningBox();
-                corruptList.display("Wrong List", "This is not a spelling list!");
+                corruptList.display("Wrong List", "This is not a spelling list!");//wrong format of spelling list
             } else if (x.getMessage().equals("12")){
                 WarningBox tooManyLevels = new WarningBox();
-                tooManyLevels.display("Wrong List", "Too many categories! 11 is the maximum number.");
+                tooManyLevels.display("Wrong List", "Too many categories! 11 is the maximum number.");//too many levels in list
             }
         }
     }
 
+    /**
+     * Checks whether the serializable file exists for that particular spelling list.
+     * If it does exist, then imports that wordmodel and uses it.
+     * Otherwise, makes a new wordmodel.
+     * @param spellingListPath the new spelling list
+     * @throws IOException wrong formatting/specifications of spelling list.
+     */
     private void checkSerExists(String spellingListPath) throws IOException{
         _file = new File(".ser/."+_title+".ser");
         _spellingListPath = spellingListPath;
@@ -67,7 +85,7 @@ public class WordModel implements Resettable, Serializable {
         if (_file.exists()) {
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(_file));
-                try {
+                try {//imports all the relevant data
                     WordModel wordModel = (WordModel)ois.readObject();
                     _levelList = wordModel.getLevelList();
                     _totalLevels = wordModel.getTotalLevels();
@@ -87,12 +105,16 @@ public class WordModel implements Resettable, Serializable {
             } catch (IOException e) {
                 //method signature; can never be reached
             }
-        } else {//new game
+        } else {//new game so make a new wordmodel
             makeNewModel();
         }
 
     }
 
+    /**
+     * Makes a new word model by settign all the relevant fields
+     * @throws IOException
+     */
     private void makeNewModel() throws IOException{
         //initialise fields
         _categoryDictionary = new HashMap<String, Integer>();
@@ -104,7 +126,7 @@ public class WordModel implements Resettable, Serializable {
         Level currentLevel;
         String currentLine;
 
-        //begin reading spelling list
+        //begin reading spelling list and store in the relevant data structures.
         FileReader fr = new FileReader(_spellingListPath);
         BufferedReader br = new BufferedReader(fr);
         currentLine = br.readLine();
@@ -195,6 +217,11 @@ public class WordModel implements Resettable, Serializable {
         return _overallStatstic;
     }
 
+    /**
+     * gets the words needed for a spelling game.
+     * @param review if true, then select only failed words
+     * @return words that are to be tested
+     */
     public List<Word> getSpellingList(boolean review) {
         Level level = _levelList.get(_currentLevel-1);
         return level.getWords(review);
@@ -255,6 +282,9 @@ public class WordModel implements Resettable, Serializable {
 
     public String getTitle(){ return _title; }
 
+    /**
+     * saves the data of the wordModel as a ser file. Called whenever the user closes the program.
+     */
     public void saveData() {
         try {
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(_file));
@@ -268,6 +298,9 @@ public class WordModel implements Resettable, Serializable {
         }
     }
 
+    /**
+     * Used to clear the history and make a new word model for the Clear History control.
+     */
     public void recreate(){
         try{
             Files.delete(Paths.get(".voxspellData.ser"));//delete the ser file

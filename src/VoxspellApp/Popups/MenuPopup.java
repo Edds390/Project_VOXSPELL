@@ -11,6 +11,10 @@ import javafx.stage.Stage;
 
 /**
  * Created by edson on 21/09/16.
+ * Menu popup shows all the menu actions available whilst the user is in a game. It has the
+ * functionality of changing the voice, showing the statistics, returning to the main menu,
+ * and exiting the game.
+ * It returns the status entered by the user and is processed by the spelling quiz scene.
  */
 public class MenuPopup {
 
@@ -23,8 +27,11 @@ public class MenuPopup {
     Button _mainMenuButton;
     Button _exitGame;
 
-    MenuStatus _menuStatus;
+    MenuStatus _menuStatus;//user input status of the menu button click
 
+    /**
+     * intializes by setting all styling and control-views to the window.
+     */
     public MenuPopup() {
 
         _window = new Stage();
@@ -61,6 +68,10 @@ public class MenuPopup {
 
     }
 
+    /**
+     * displays the window and returns which button the user has pressed
+     * @return which button user pressed
+     */
     public MenuStatus display(){
         Scene scene = new Scene(_layout);
         _window.setScene(scene);
@@ -69,6 +80,11 @@ public class MenuPopup {
     }
 
 
+    /**
+     * button creator helper function
+     * @param caption button name
+     * @return button itself
+     */
     private Button createButtons(String caption){
         Button button = new Button(caption);
         if (caption.equals("Exit Game")){
@@ -80,6 +96,10 @@ public class MenuPopup {
         return button;
     }
 
+    /**
+     * event handler creator helper function
+     * Returns the statuses of the menu button click.
+     */
     private void setupEventHandlers(){
         _voiceButton.setOnAction(e->{
             _menuStatus = MenuStatus.VOICE;

@@ -32,16 +32,21 @@ import java.util.*;
 
 /**
  * Created by edson on 17/10/16.
+ * Represents the List Creator window, where the user can make their own custom
+ * spelling list using this window. Using the new custom list, this class will
+ * prompt the main window to switch to the new spelling list.
+ * If the custom spelling list is invalid, then the list creator will not prompt
+ * for a spelling list change.
  */
 public class ListCreatorScene {
 
     private Stage window = new Stage();
 
     private MasterModel _master;
-    private WordModel _model;
-    private Map<String, ObservableList<String>> _levelMap;
-    private ObservableList<String> _categoryList;
-    private ObservableList<String> _wordList;
+    private WordModel _model;//stores data needed by this class
+    private Map<String, ObservableList<String>> _levelMap;//maps the category name to the levels
+    private ObservableList<String> _categoryList;//stores all the categories
+    private ObservableList<String> _wordList;//stores all the words of the current category
 
     private BorderPane _mainLayout;
     private HBox _listBox;
@@ -77,6 +82,12 @@ public class ListCreatorScene {
     StringBuilder output;
     private MediaPlayer _sound;
 
+    /**
+     * constructor which stores the data it needs and sets up the layouts that is to be set, as
+     * well as the stylizing of those layouts.
+     * @param master the master model
+     * @param model the word model that is to be updated.
+     */
     public ListCreatorScene(MasterModel master, WordModel model){
         _master = master;
         _model = model;
@@ -99,6 +110,7 @@ public class ListCreatorScene {
         _mainLayout.setTop(titleBox);
         _mainLayout.setCenter(_listBox);
 
+        //sfx
         final URL resource = getClass().getResource("/MediaResources/SoundFiles/264447__kickhat__open-button-2.wav");
         final Media media = new Media(resource.toString());
         _sound = new MediaPlayer(media);
@@ -109,6 +121,12 @@ public class ListCreatorScene {
     }
 
 
+    /**
+     * displays the window and waits for the window to close.
+     * Returns a prompt to the main window to whether or not to change the current word model and
+     * replace with the user's custom list.
+     * @return if true, update the main window with the new custom list. else, do nothing.
+     */
     public boolean display(){
         _isSaved=false;
 
@@ -124,11 +142,15 @@ public class ListCreatorScene {
 
         Scene scene = new Scene(_mainLayout);
         window.setScene(scene);
-        window.showAndWait();
+        window.showAndWait();//wait for user input
 
-        return _isSaved;
+        return _isSaved;//user has successfully saved the custom list and followed all specifications
     }
 
+    /**
+     * closes program and warns beforehand. If user decides to go back to creating more words, has that
+     * option too.
+     */
     private void closeProgram(){
         ConfirmQuitBox confirm = new ConfirmQuitBox();
         if(confirm.display("Quit Create List", "All unsaved changes will be lost. Continue?")){
@@ -136,6 +158,10 @@ public class ListCreatorScene {
         }
     }
 
+    /**
+     * creates the list views that show all the words and categories that the user has inputted.
+     * It's a helper function.
+     */
     private void createListViews(){
         _listBox = new HBox();
         VBox categoryBox = new VBox();
@@ -144,6 +170,7 @@ public class ListCreatorScene {
         _categoryListView = new ListView<String>();
         _wordListView = new ListView<String>();
 
+        //stylizing and layouts.
         HBox categorySubmitBox = new HBox();
         HBox wordSubmitBox = new HBox();
         _wordInput = new TextField();
@@ -176,6 +203,10 @@ public class ListCreatorScene {
 
     }
 
+    /**
+     * helper function to create the button layout of save and back
+     * @return vbox storing the buttons
+     */
     private VBox createButtonLayout(){
         VBox vbox = new VBox(10);
         vbox.setPadding(new Insets(5));
@@ -186,6 +217,11 @@ public class ListCreatorScene {
         return vbox;
     }
 
+    /**
+     * helper function to create and stylize the buttons for Save and Back.
+     * @param text caption of the button
+     * @return button itself stylized.
+     */
     private Button createButtons(String text){
         Button newButton = new Button(text);
         newButton.setPrefWidth(180);
@@ -194,24 +230,31 @@ public class ListCreatorScene {
         return newButton;
     }
 
+    /**
+     * helper function to set up the event handlers for this window.
+     */
     private void setupEventHandlers(){
+        //Checks if the user's new custom list is valid for our game.
+        //if the category name is too long, or no categories are inputted, or a category with
+        //the same name already exists, then a warning box is shown telling the user to change his
+        //custom list.
         _submitCategory.setOnAction(e -> {
             _sound.stop();
             _sound.play();
             String input = _categoryInput.getText();
-            if (input.length() > 15) {
+            if (input.length() > 15) {//category name is too long
                 WarningBox wb = new WarningBox();
                 wb.display("New Category", "Category name is too long. Please shorten the name.");
-            } else if (input.length() <= 0) {
+            } else if (input.length() <= 0) {//no categories are inputted
                 WarningBox wb = new WarningBox();
                 wb.display("New Category", "Empty category name. Please add a word as a category.");
 
-            } else if (_levelMap.get(input)!=null){
+            } else if (_levelMap.get(input)!=null){//category already exists
                 _categoryListView.getSelectionModel().select(input);
                 WarningBox wb = new WarningBox();
                 wb.display("New Category", "Category already exists.");
                 _categoryInput.clear();
-            }else {
+            }else {//meets specifications so add the category to te list view
                 _categoryList.add(input);
                 ObservableList<String> wordList = FXCollections.observableArrayList();
                 _levelMap.put(input, wordList);
@@ -222,6 +265,7 @@ public class ListCreatorScene {
 
         });
 
+        //enables category to be selected so the user can delete that category.
         _categoryListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -233,23 +277,27 @@ public class ListCreatorScene {
             }
         });
 
+        //lets the user submit a word for a particular category.
+        //checks if the user has inputted the right/correct format of the word.
         _submitWord.setOnAction(e->{
             _sound.stop();
             _sound.play();
             String input = _wordInput.getText();
+            //only letters are allowed. no numbers or spaces etc
             if (!input.matches("[a-zA-Z]+")) {
                 WarningBox wb = new WarningBox();
                 wb.display("New Word", "Please enter only letters.");
-            } else if (_wordList.contains(input)){
+            } else if (_wordList.contains(input)){//word already exists for that particular level
                 WarningBox wb = new WarningBox();
                 wb.display("New Word", "Word already exists!");
-            } else {
+            } else {//word is valid so lets user input it in.
                 _wordList.add(input);
                 _wordListView.setItems(_wordList);
             }
             _wordInput.clear();
         });
 
+        //allows the user to select a word so that he can delete the word if wanting to.
         _wordListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -258,6 +306,7 @@ public class ListCreatorScene {
             }
         });
 
+        //deletes the word from the word list of that particulcar category
         _deleteWord.setOnAction(e->{
             _sound.stop();
             _sound.play();
@@ -268,6 +317,7 @@ public class ListCreatorScene {
             }
         });
 
+        //deletes the category from the lsit of categories if the user wants to delete it.
         _deleteCategory.setOnAction(e->{
             _sound.stop();
             _sound.play();
@@ -279,19 +329,22 @@ public class ListCreatorScene {
             }
         });
 
+        //saves the custom list but first checks if the custom list is valid.
+        //if it is valid, then it prompts the main window to change its word model with the
+        //new custom list.
         _save.setOnAction(e->{
             _sound.stop();
             _sound.play();
             boolean isSuccessful = true;
             output = new StringBuilder();
-            if (_categoryList.size()==0){
+            if (_categoryList.size()==0){//needs at least one category to be valid
                 WarningBox wb = new WarningBox();
                 wb.display("Save Spelling List", "Not enough categories. Please add more categories.");
             } else {
                 for (String category : _categoryList){
                     output.append("%"+category+"\n");
                     //if not enough words, set warning and do nothing
-                    if(_levelMap.get(category).size()<10){
+                    if(_levelMap.get(category).size()<10){//each category must have at least 10 words.
                         WarningBox wb = new WarningBox();
                         wb.display("Save Spelling List", "Not enough words. Category "+category+" must have at least 10 words.");
                         isSuccessful = false;
@@ -312,6 +365,9 @@ public class ListCreatorScene {
 
         });
 
+        //checks whether a valid save has been made. based on that, it will prompt the main program to change the
+        //word model with the word model of the new custom list. saves the custom list to a text file.
+        //if not valid save has been made, then jsut closes the window back to the main menu.
         _back.setOnAction(e->{
             _sound.stop();
             _sound.play();
@@ -327,12 +383,13 @@ public class ListCreatorScene {
 
                     i++;
                 }
-                try {
+                try {//write to a text file
                     file.createNewFile();
                     FileWriter fw = new FileWriter(file.getAbsoluteFile());
                     BufferedWriter bw = new BufferedWriter(fw);
                     bw.write(output.toString().trim());
                     bw.close();
+                    //change the model with the new custom list.
                     _model.getMasterModel().addAddress("CustomFile"+i, filePath);
                     _model.newList("CustomFile"+i);
                 } catch (IOException e1) {

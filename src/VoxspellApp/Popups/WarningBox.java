@@ -14,10 +14,19 @@ import java.net.URL;
 
 /**
  * Created by edson on 22/10/16.
+ * Functionality is similar to the confirmquitbox but does not let user quit the program.
+ * Instead, it only lets user return to the main window.
+ * Used for error handling.
  */
 public class WarningBox {
 
+    /**
+     * Displays the warning box to the user as a popup
+     * @param title title of the warning box window
+     * @param message warning box's message
+     */
     public void display(String title, String message) {
+        //SFX when warning pops up
         final URL resource = getClass().getResource("/MediaResources/SoundFiles/124905__greencouch__beeps-5.wav");
         final Media media = new Media(resource.toString());
         MediaPlayer mediaPlayer = new MediaPlayer(media);
@@ -36,6 +45,7 @@ public class WarningBox {
         Button yesButton = new Button("OK");
         yesButton.setStyle("-fx-background-radius: 5 5 5 5");
 
+        //if pressed return to main window
         yesButton.setOnAction(e -> {
             window.close();
         });
@@ -47,7 +57,7 @@ public class WarningBox {
 
         Scene scene = new Scene(layout);
         window.setScene(scene);
-        window.showAndWait();
+        window.showAndWait();//wait for user input
 
     }
 

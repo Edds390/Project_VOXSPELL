@@ -12,6 +12,9 @@ import java.util.List;
 
 
 /**
+ * Represents the LEVEL abstraction, where each level/category holds a list
+ * of words that are specific to that particular level.
+ * Also stores the relevant statistic metrics.
  * Created by edson on 15/09/16.
  */
 public class Level implements Resettable, Iterable<Word>, Serializable {
@@ -22,6 +25,10 @@ public class Level implements Resettable, Iterable<Word>, Serializable {
     private List<Word> _wordList;
     private List<Word> _failedList;
 
+    /**
+     * Level construcotr is passed in a level number representing that level
+     * @param level level number
+     */
     public Level(int level){
         _wordList = new ArrayList<Word>();
         _failedList = new ArrayList<Word>();
@@ -29,20 +36,36 @@ public class Level implements Resettable, Iterable<Word>, Serializable {
         _accuracyStats = new int[3];
     }
 
+    /**
+     * adds a word to the arraylist of words
+     * @param word word object
+     */
     protected void addWord(String word){
         _wordList.add(new Word(word));
     }
 
+    /**
+     * adds a failed word to the arraylist of failed words
+     * @param word failed word
+     */
     protected void addFailedWord(Word word) {
         if (!_failedList.contains(word)) {
             _failedList.add(word);
         }
     }
 
+    /**
+     * removes a failed word from the failed list, for when the user gets
+     * it right from the review mode.
+     * @param word failed word
+     */
     protected void removeFailedWord(Word word) {
         _failedList.remove(word);
     }
 
+    /**
+     * resets each word statistic in its wordlist.
+     */
     public void reset(){
         for (Word word: _wordList){
             word.reset();
@@ -65,6 +88,13 @@ public class Level implements Resettable, Iterable<Word>, Serializable {
        }
    }
 
+    /**
+     * Selects a certain number of words as specified by the COUNT constant.
+     * If the COUNT is greater than the list size, then it returns the
+     * list itself.
+     * @param wordList wordlist to be populated by the function
+     * @return a wordlist of the selected words
+     */
    private List<Word> selectWords(List<Word> wordList) {
        if (wordList.size() < Voxspell.COUNT) {
            return wordList;
@@ -92,14 +122,25 @@ public class Level implements Resettable, Iterable<Word>, Serializable {
        }
    }
 
+    /**
+     * getter for wordlist
+     * @return list of words specific for that leel
+     */
    public List<Word> getWordList(){
        return _wordList;
    }
 
+    /**
+     * sorts the wordlist for stats view
+     */
    public void sort(){
        Collections.sort(_wordList);
    }
 
+    /**
+     * the follow methods return the overall statistics for this level
+     * @return
+     */
    public int getMasterFrequency(){
        return _accuracyStats[2];
    }
@@ -119,6 +160,10 @@ public class Level implements Resettable, Iterable<Word>, Serializable {
         return wordIterator;
     }
 
+    /**
+     * getter for failed list
+     * @return failed list
+     */
     public List<Word> getFailedList() {
         return this._failedList;
     }

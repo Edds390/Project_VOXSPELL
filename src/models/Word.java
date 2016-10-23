@@ -6,6 +6,10 @@ import java.util.Map;
 
 /**
  * Created by edson on 15/09/16.
+ *
+ * Represents the Word data structure which stores the word string that is associated with it
+ * as well as the relevant statistics for that particular word.
+ * The statistics is stored as an array of int and is incremented as the user spells the word.
  */
 public class Word implements Resettable, Serializable, Comparable<Word>{
     private static final long serialVersionUID = 1L;
@@ -15,18 +19,30 @@ public class Word implements Resettable, Serializable, Comparable<Word>{
     int[] _countList;
 
 
-
+    /**
+     * Takes in a word string and wraps it within the class.
+     * Enum statuses to show the status the word is currently in at runtime.
+     * Unseen: untested.
+     * @param word word from the spelling quiz
+     */
     public Word(String word){
         _word = word;
         _status = Status.Unseen;//word yet to be seen ingame
         _countList = new int[3];
     }
 
+    /**
+     * Increments the statistics based on the status of the word.
+     * @param status word's status
+     */
     public void countUp(Status status){
         _countList[status.getStatus()] += 1;
         _status = status;
     }
 
+    /**
+     * resets the statistics of the word when the user clears history.
+     */
     public void reset(){
         _countList = new int[3];
         _status = Status.Unseen;

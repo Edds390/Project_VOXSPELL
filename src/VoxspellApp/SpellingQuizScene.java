@@ -33,7 +33,11 @@ import java.net.URL;
 import java.util.ArrayList;
 
 /**
- * Created by ratterz on 16/09/16.
+ * Represents the spelling quiz scene. Tightly linked with the spellingQuiz class to
+ * jointly perform the spelling game with the user. This class is disjoint with
+ * the initial scene and is solely reponsible for playing the spelling game.
+ * The SpellingQuiz holds the spelling logic whilst this class is responsible for
+ * user interaction during the game.
  */
 public class SpellingQuizScene {
 
@@ -125,7 +129,7 @@ public class SpellingQuizScene {
         _helpButton.setStyle("-fx-font: bold 30 latoheavy; -fx-base: #1db361; " +
                 "-fx-background-radius: 40 40 40 40; -fx-text-fill:  white; -fx-border: 20px; -fx-border-color: white; -fx-border-radius: 40");
         _helpButton.setOnAction(e->{
-            HelpWindow help = new HelpWindow(2);
+            HelpWindow help = new HelpWindow(4);
             help.display();
         });
 
@@ -136,7 +140,11 @@ public class SpellingQuizScene {
         setUpEventHandelers();
     }
 
+    /**
+     * helper function to set up the gui
+     */
     private void setUpGui() {
+        //more helper functions
         setUpStatusArea();
         setUpTextArea();
         setUpButtonArea();
@@ -163,9 +171,13 @@ public class SpellingQuizScene {
 
     }
 
+    /**
+     * sets up the game area where the mice and cats are situated in.
+     */
     private void setUpGameArea(){
         _overallGameArea = new HBox();
 
+        //uses a grid pane to update the position of the mice relative to the cat.
         _gameArea = new GridPane();
         _gameArea.setPadding(new Insets(60,0,0,0));
         miceNum = _wordModel.getSpellingList(_review).size();
@@ -196,6 +208,10 @@ public class SpellingQuizScene {
 
     }
 
+    /**
+     * updates which mice to show. the more the user gets wrong, the less mice that is shown.
+     * Also, if user gets wrong a mouse gets left behind.
+     */
     public void updateMice(){
         _gameArea.getChildren().remove(_miceGroup);
 
@@ -217,6 +233,9 @@ public class SpellingQuizScene {
         _mainLayout.getChildren().addAll(_statusArea,_resultsArea,_overallGameArea,_buttonArea,_textArea);
     }
 
+    /**
+     * sets up the text area where the user can enter his/her words to check its correctness.
+     */
     private void setUpTextArea() {
         _textArea.setSpacing(20);
         _textArea.setPadding(new Insets(5));
@@ -237,6 +256,9 @@ public class SpellingQuizScene {
         _textArea.getChildren().addAll(_inputText,_submitButton);
     }
 
+    /**
+     * sets up the status area at the top to show the user what level he is in and what mode he is playing.
+     */
     private void setUpStatusArea() {
         _statusArea.setSpacing(10);
         _statusArea.setPadding(new Insets(5));
@@ -262,6 +284,10 @@ public class SpellingQuizScene {
         _statusArea.getChildren().addAll(space1,_levelTitle,_modeTitle, space2, _helpButton);
     }
 
+    /**
+     * helper function.
+     * sets up the button area where the buttons for repeat, setting, and the accuracy display is set.
+     */
     private void setUpButtonArea() {
         _buttonArea.setSpacing(50);
         _buttonArea.setPadding(new Insets(5));
@@ -286,6 +312,9 @@ public class SpellingQuizScene {
         _buttonArea.getChildren().addAll(_repeatButton,_accuracyArea,_settingsButton);
     }
 
+    /**
+     * sets up the accracy display helper function.
+     */
     private void setUpAccuracyTitles() {
         _accuracyArea.setPadding(new Insets(5,0,0,0));
         _accuracyArea.setAlignment(Pos.CENTER);
@@ -299,12 +328,20 @@ public class SpellingQuizScene {
         _accuracyArea.getChildren().setAll(_accuracyTitle,_accuracyLabel);
     }
 
+    /**
+     * adds circles to the spelling game for the progress bar.
+     * called by the SpellingQuiz based on its progress.
+     * @param number number of circles to be added based on number of words
+     */
     public void addCircles(int number) {
         createCircles(number);
         _resultsArea.getChildren().removeAll(_startQuizButton);
         _resultsArea.getChildren().addAll(_circleList);
     }
 
+    /**
+     * helper function to set up the results after the game has finished.
+     */
     private void setUpResultsArea() {
         _resultsArea.setSpacing(15);
         _resultsArea.setPadding(new Insets(5));
@@ -317,6 +354,10 @@ public class SpellingQuizScene {
         _resultsArea.getChildren().addAll(_startQuizButton);
     }
 
+    /**
+     * creates the circles based on the number of words there are
+     * @param number number of words
+     */
     private void createCircles(int number) {
         _circleList.clear();
         for (int i = 0; i < number; i++) {
@@ -326,43 +367,52 @@ public class SpellingQuizScene {
         }
     }
 
+    /**
+     * updates the mice based on the status of the word that the user has spelled
+     * @param status word's status
+     */
     private void updateMice(Status status){
 
         if (status.equals(Status.Mastered)){
+            //no mice gets left behind but the position of the mice is decremented towards the cat
             soundEffect("/MediaResources/SoundFiles/goodmeow.wav");
             miceNum--;
-            updateMice();
+            updateMice();//updates the mouse picture
             //mice number does not decrement as none gets left behind if correct
 
         } else if (status.equals(Status.Faulted)){
             soundEffect("/MediaResources/SoundFiles/333916__thearxx08__cat-meowing.mp3");
-            miceNum--;
-            _miceHowMany--;
+            miceNum--;//one mouse gets left behind
+            _miceHowMany--;//mouse position decrements
             updateMice();
             final ImageView miceimv = new ImageView();
-            final Image miceImage = new Image("MediaResources/mouse1sharp.png", 80, 105, false, true);
+            final Image miceImage = new Image("MediaResources/mouse1sharp.png", 80, 105, false, true);//brown mouse
             miceimv.setImage(miceImage);
             GridPane.setConstraints(miceimv,miceNum+1,0);
             _gameArea.getChildren().addAll(miceimv);
         } else if (status.equals(Status.Failed)){
             soundEffect("/MediaResources/SoundFiles/badmeow.wav");
-            miceNum--;
-            _miceHowMany--;
+            miceNum--;//mouse position decrements
+            _miceHowMany--;//one mosue gets left behind
             updateMice();
             final ImageView miceimv = new ImageView();
-            final Image miceImage = new Image("MediaResources/mouse3flat.png", 80, 105, false, true);
+            final Image miceImage = new Image("MediaResources/mouse3flat.png", 80, 105, false, true);//black mouse
             miceimv.setImage(miceImage);
             GridPane.setConstraints(miceimv,miceNum+1,0);
             _gameArea.getChildren().addAll(miceimv);
         }
     }
 
+    /**
+     * based on the word status, colour the circle with either green, red, or orange.
+     * @param status
+     */
     private void updateCircle(Status status) {
         DropShadow glow = new DropShadow();
         glow.setOffsetX(0f);
         glow.setOffsetY(0f);
         glow.setRadius(50);
-        if (status.equals(Status.Mastered)) {
+        if (status.equals(Status.Mastered)) {//user masters the word
             glow.setColor(Color.GREEN);
             _circleList.get(_position).setStyle("-fx-fill: rgb(90,175,90);");
             _circleList.get(_position).setEffect(glow);
@@ -370,13 +420,13 @@ public class SpellingQuizScene {
             _accuracy++;
             _position--;
             colorAccuracy(_accuracy/(_wordNum-_position) * 100);
-        } else if (status.equals(Status.Faulted)) {
+        } else if (status.equals(Status.Faulted)) {//user faults the word
             glow.setColor(Color.ORANGE);
             _circleList.get(_position).setStyle("-fx-fill: rgb(230,160,40);");
             _circleList.get(_position).setEffect(glow);
             _position--;
             colorAccuracy(_accuracy/(_wordNum-_position) * 100);
-        } else if (status.equals(Status.Failed)) {
+        } else if (status.equals(Status.Failed)) {//user fails the word
             glow.setColor(Color.RED);
             _circleList.get(_position).setStyle("-fx-fill: rgb(225,100,50);");
             _circleList.get(_position).setEffect(glow);
@@ -385,8 +435,13 @@ public class SpellingQuizScene {
         }
     }
 
+    /**
+     * helper function to set the accuracy display's colour mode as well as update its
+     * accuracy number
+     * @param percentage the accuracy the user is currently in as double
+     */
     private void colorAccuracy(double percentage) {
-        _accuracyLabel.setText(String.format("%.2f", percentage)+"%");
+        _accuracyLabel.setText(String.format("%.2f", percentage)+"%");//set to 2 dp.
         _accuracyHover.setText(String.format("Accuracy: %.2f", percentage)+"%");
         if (percentage >= 90) {
             _accuracyLabel.setStyle("-fx-font: bold 40 arial;-fx-text-fill: #5aaf5a");
@@ -400,6 +455,9 @@ public class SpellingQuizScene {
         }
     }
 
+    /**
+     * redisplays the spelling quiz should the user wishes to play a new game
+     */
     private void reset() {
         _mediaPlayer.play();
         resetAccuracyHandlers();
@@ -422,6 +480,9 @@ public class SpellingQuizScene {
 
     }
 
+    /**
+     * handler for if the user wishes to see the accuracy he can hover over the progress bar
+     */
     private void setUpAccuracyHandlers() {
         _resultsArea.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
@@ -440,6 +501,9 @@ public class SpellingQuizScene {
         });
     }
 
+    /**
+     * helper function for reseting te accuracy
+     */
     private void resetAccuracyHandlers() {
         _resultsArea.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
@@ -454,6 +518,10 @@ public class SpellingQuizScene {
         });
     }
 
+    /**
+     * helper function to set up the reward gui.
+     * This gui is only shown if the user has spelled 9 words correctly out of 10.
+     */
     private void setUpRewardGui() {
         //_wordModel.levelUp();
         _mediaPlayer.stop();
@@ -472,18 +540,18 @@ public class SpellingQuizScene {
 
         _congratsStatusArea.getChildren().removeAll(_congratsTitle,_congratsStatusVBox,_congratsTitle2);
         _congratsStatusArea.getChildren().addAll(_congratsTitle);
-
+        //sets the video player button
         _videoButton.setMinWidth(200);
         _videoButton.setMinHeight(200);
         _videoButton.setStyle("-fx-font: bold italic 25 arial; -fx-base: #fbb040;-fx-background-radius: 100 100 100 100; -fx-text-fill: white");
-
+        //if the user wishes to progress to the next level
         _nextLevelButton.setMinWidth(250);
         _nextLevelButton.setMinHeight(25);
         _nextLevelButton.setStyle("-fx-font: bold 18 arial; -fx-base: #fbb040; -fx-background-radius: 10 10 10 10; -fx-text-fill: white");
         if (_wordModel.getCurrentLevel() >= _wordModel.getNumberOfLevels()) {
             _nextLevelButton.setDisable(true);
         }
-
+        //if the user wishes to replay that level
         _stayButton.setMinWidth(250);
         _stayButton.setMinHeight(25);
         _stayButton.setStyle("-fx-font: bold 18 arial; -fx-base: #fbb040; -fx-background-radius: 10 10 10 10; -fx-text-fill: white");
@@ -495,6 +563,12 @@ public class SpellingQuizScene {
         _mainLayout.getChildren().addAll(_congratsStatusArea,_resultsArea,_videoButton,_nextLevelButton,_stayButton,_mainMenu);
     }
 
+
+    /**
+     * helper function to set up the failed gui. This gui is only shown if the user gets less that 9 words right.
+     * Here, the user does not have the ability to progress to the next level nor does he have the option
+     * to play the video reward.
+     */
     private void setUpFailedGui() {
         _mediaPlayer.stop();
         _failedSound.play();
@@ -517,7 +591,7 @@ public class SpellingQuizScene {
 
         _congratsStatusArea.getChildren().removeAll(_congratsStatusVBox,_congratsTitle2,_congratsTitle);
         _congratsStatusArea.getChildren().addAll(_congratsStatusVBox);
-
+        //replay the level
         _stayButton.setMinWidth(250);
         _stayButton.setMinHeight(25);
         _stayButton.setStyle("-fx-font: bold 18 arial; -fx-base: #fbb040; -fx-background-radius: 10 10 10 10; -fx-text-fill: white");
@@ -529,6 +603,9 @@ public class SpellingQuizScene {
         _mainLayout.getChildren().addAll(_congratsStatusArea,_resultsArea,_stayButton,_mainMenu);
     }
 
+    /**
+     * helper function sets up the reward gui. This gui is only available if the user is currently in the review mode.
+     */
     private void setUpReviewGui() {
         _mainLayout.getChildren().removeAll(_statusArea,_resultsArea,_buttonArea,_textArea, _overallGameArea);
         _mainLayout.setAlignment(Pos.CENTER);
@@ -551,6 +628,11 @@ public class SpellingQuizScene {
         _mainLayout.getChildren().addAll(_congratsStatusArea,_resultsArea,_mainMenu);
     }
 
+    /**
+     * This helper function is used to update the various information of the spelling quiz scene, such as
+     * updating the mice and circle as well the check if the quiz has finished so that it can move on to
+     * the next scene.
+     */
     private void submitHandler() {
         String text = _inputText.getText();
         _inputText.clear();
@@ -565,6 +647,10 @@ public class SpellingQuizScene {
         isFinished();
     }
 
+    /**
+     * this helper function chekcs if the user has spelled all the wordsi nthe spelling list. if it has,
+     * then it sets up either the reward, review, or failed guis that follow after a finished spelling game.
+     */
     private void isFinished() {
         if (_quiz.getFinishedStatus()) {
             _repeatButton.setDisable(true);
@@ -583,7 +669,11 @@ public class SpellingQuizScene {
         }
     }
 
+    /**
+     * hlper function for seting up the event handlers of this class.
+     */
     private void setUpEventHandelers() {
+        //allows user to press the enter key to submit his word.
         _inputText.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
@@ -594,6 +684,7 @@ public class SpellingQuizScene {
             }
         });
 
+        //check if the user has finished and update the scene with the result.
         _submitButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -604,6 +695,7 @@ public class SpellingQuizScene {
             }
         });
 
+        //Begins the quiz and initializes the relevant fields.
         _startQuizButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -621,6 +713,9 @@ public class SpellingQuizScene {
             }
         });
 
+        /**
+         * repeats the current word
+         */
         _repeatButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -630,6 +725,9 @@ public class SpellingQuizScene {
             }
         });
 
+        /**
+         * repeats the level after level has finished.
+         */
         _stayButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -643,6 +741,9 @@ public class SpellingQuizScene {
             }
         });
 
+        /**
+         * progresses on to the next level should hte user want to.
+         */
         _nextLevelButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -657,6 +758,9 @@ public class SpellingQuizScene {
             }
         });
 
+        /**
+         * return to the main menu if the user doesnt like the current level.
+         */
         _mainMenu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -672,6 +776,9 @@ public class SpellingQuizScene {
         });
 
 
+        /**
+         * plays the reward video.
+         */
         _videoButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -683,6 +790,10 @@ public class SpellingQuizScene {
             }
         });
 
+        /**
+         * Opens up the menu bar. Here the user can select whether to quit, return to main menu, change voice,
+         * or show statistics. This is a popup menu.
+         */
         _settingsButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -690,10 +801,10 @@ public class SpellingQuizScene {
                 _buttonSound.play();
                 _menu = new MenuPopup();
                 MenuStatus option = _menu.display();
-                if (option == MenuStatus.VOICE){
+                if (option == MenuStatus.VOICE){//lets the user change the voice as a popup.
                     VoiceChangePopup voiceOptionMenu = new VoiceChangePopup();
                     voiceOptionMenu.display();
-                } else if (option == MenuStatus.STATS){
+                } else if (option == MenuStatus.STATS){//show statistics in a popup window
                     Stage statsPopup = new Stage();
                     statsPopup.initModality(Modality.APPLICATION_MODAL);
                     statsPopup.setTitle("Statistics");
@@ -708,13 +819,13 @@ public class SpellingQuizScene {
                     statsPopup.setScene(scene);
                     statsPopup.showAndWait();
 
-                } else if (option == MenuStatus.MAIN){
+                } else if (option == MenuStatus.MAIN){//return to main menu
                     Stage stage = Stage.class.cast(_mainScene.getWindow());
                     InitialScene initialScene = new InitialScene(stage, _wordModel);
                     stage.setScene(initialScene.createScene());
                     _mediaPlayer.stop();
 
-                } else if (option == MenuStatus.EXIT){
+                } else if (option == MenuStatus.EXIT){//exit the game
                     Stage stage = Stage.class.cast(_mainScene.getWindow());
                     _wordModel.saveData();
                     stage.close();
@@ -759,6 +870,11 @@ public class SpellingQuizScene {
         sfx.play();
     }
 
+    /**
+     * helper function to create a background music.
+     * @param fileName address of the bgm
+     * @return mediaplayer of the bgm
+     */
     private MediaPlayer bgm(String fileName){
         final URL resource = getClass().getResource(fileName);
         final Media media = new Media(resource.toString());
@@ -772,8 +888,10 @@ public class SpellingQuizScene {
     }
 
 
-
-
+    /**
+     * used to create the scene outside this class
+     * @return scene created by this class.
+     */
     public Scene createScene() {
         return this._mainScene;
     }

@@ -10,11 +10,22 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+/**
+ * The confirm quitbox is a popup that is used to confirm the closing of the program.
+ * If yes, quits program. Else, returns user back to the original start state.
+ * Can be reused for error handling as well as quitting program.
+ */
 public class ConfirmQuitBox {
 
     //Create variable
     boolean answer;//the answer yes or no
 
+    /**
+     * displays the confirmquitbox.
+     * @param title window title
+     * @param message message in the popup
+     * @return whether to close program or not
+     */
     public boolean display(String title, String message) {
         Stage window = new Stage();
         window.initModality(Modality.APPLICATION_MODAL);//modality for suppressing main window
@@ -31,16 +42,18 @@ public class ConfirmQuitBox {
         Button noButton = new Button("No");
         noButton.setStyle("-fx-background-radius: 5 5 5 5");
 
+        //if yes, close program
         yesButton.setOnAction(e -> {
             answer = true;
             window.close();
         });
+        //if no, return user to main window
         noButton.setOnAction(e -> {
             answer = false;
             window.close();
         });
 
-
+        //styling of window
         TilePane optionLayout = new TilePane();
         optionLayout.setAlignment(Pos.CENTER);
         optionLayout.getChildren().addAll(yesButton, noButton);
@@ -55,7 +68,7 @@ public class ConfirmQuitBox {
         layout.setStyle("-fx-base: #262262;");
         Scene scene = new Scene(layout);
         window.setScene(scene);
-        window.showAndWait();
+        window.showAndWait();//wait for user to press button
 
         //Make sure to return answer
         //THE ORIGINAL WINDOW CALLS DISPLAY() METHOD OF THIS CLASS. TO CREATE INTERACTION BETWEEN WINDOWS, THIS

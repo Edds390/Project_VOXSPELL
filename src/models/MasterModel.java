@@ -9,15 +9,23 @@ import java.util.Set;
 
 /**
  * Created by edson on 9/10/16.
+ * This class is the master model that stores all WordModel objects that are specific to a
+ * particular word list, using a hashmap. Thus, it retains all statistics information across
+ * different sessions and different list selections.
+ * It also stores the address of the spelling list and is identifiable using the word list's
+ * simple name.
  */
 public class MasterModel implements Serializable{
     private static final long serialVersionUID = 123L;
-    private Map<String, WordModel> _masterMap;
-    private Map<String, String> _titleDictionary;
+    private Map<String, WordModel> _masterMap;//map of list to wordmodel
+    private Map<String, String> _titleDictionary;//map of list name to list address
     private File _file = new File(".ser/.MasterModel.ser");
 
 
     public MasterModel(){
+        //if ser file exists, loads the old history, else make a new one if fresh start.
+        //error statements will send the user a prompt saying the proper directory structure
+        //doesn't exist.
         if (_file.exists()) {
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(_file));
@@ -48,6 +56,11 @@ public class MasterModel implements Serializable{
     }
 
 
+    /**
+     * Adds a word model to the word model dictionary, keyed by the list's simple name.
+     * If error, end program.
+     * @param wordModel the word model to be added
+     */
     public void addToMaster(WordModel wordModel){
         _masterMap.put(wordModel.getTitle(), wordModel);
         try {
@@ -60,6 +73,11 @@ public class MasterModel implements Serializable{
         }
     }
 
+    /**
+     * associates a spelling list's simple name with its address
+     * @param title list simple name
+     * @param address list address
+     */
     public void addAddress(String title, String address){
         _titleDictionary.put(title, address);
 

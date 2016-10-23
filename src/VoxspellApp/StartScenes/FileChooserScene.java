@@ -27,12 +27,16 @@ import java.util.Set;
 
 /**
  * Created by edson on 5/10/16.
+ * The scene which deals with the file viewing and choosing.
+ * This scene lets the user choose their own custom files or make their own spelling
+ * lists. The scene then shows all the words (separated by categories) as listviews.
+ * Hyperlinks show the words for that particular level/category.
  */
 public class FileChooserScene {
 
     private Desktop desktop = Desktop.getDesktop();
 
-    private WordModel _model;
+    private WordModel _model;//data structure for data handling
     private BorderPane _mainLayout;
     private VBox _comboBoxLayout;
     private HBox _listLayout;
@@ -46,16 +50,20 @@ public class FileChooserScene {
 
     //ListViews
     private VBox _categoryLayout;
-    ListView<String> _wordListView;
+    private ListView<String> _wordListView;
 
     //combobox items
     String _filePath;
 
-    MediaPlayer _buttonSound;
+    private MediaPlayer _buttonSound;
 
 
-
+    /**
+     * Sets up stylizing and declares all fields.
+     * @param model the wordmodel which stores all the information for that level
+     */
     public FileChooserScene(WordModel model){
+        //sets up the logic for the help button
         _helpButton = new Button("?");
         _helpButton.setStyle("-fx-font: bold 30 latoheavy; -fx-base: #1db361; " +
                 "-fx-background-radius: 40 40 40 40; -fx-text-fill:  white; -fx-border: 20px; -fx-border-color: white; -fx-border-radius: 40");
@@ -84,6 +92,9 @@ public class FileChooserScene {
         return _mainLayout;
     }
 
+    /**
+     * helper function for setting up the combobox
+     */
     private void setComboBoxLayout(){
         _comboBoxLayout = new VBox(10);
 
@@ -95,14 +106,15 @@ public class FileChooserScene {
         topBox.getChildren().addAll(cFile, space,_helpButton);
 
         HBox comboLayout = new HBox(10);
-        //combobox
+
+        //combobox. populates the combobox with all the spellling list options that have been imported.
         ObservableList<String> options = FXCollections.observableArrayList();
         _listCombo = new ComboBox<String>(options);
         Set<String> listSet = _model.getMasterModel().getMapKeyset();
         for (String list : listSet){
             _listCombo.getItems().add(list);
         }
-        _listCombo.setValue(_model.getTitle());
+        _listCombo.setValue(_model.getTitle());//set the current list as its value
         _listCombo.setStyle("-fx-font: 20 latoheavy; -fx-background-radius: 20 20 20 20");
         //add and minus buttons
         HBox buttonBox = new HBox();
@@ -118,10 +130,14 @@ public class FileChooserScene {
 
     }
 
+    /**
+     * helper function for setting up the listviews.
+     */
     private void setViewListLayout(){
 
 
         _categoryLayout = new VBox(8);
+        //extracts all the levels in the wordmodel and populates hyperlinks to see the words
         for (String category : _model.getCategoryList()){
             Hyperlink link = new Hyperlink(category);
             setAction(link);
@@ -145,6 +161,12 @@ public class FileChooserScene {
         _listLayout.setAlignment(Pos.CENTER);
     }
 
+    /**
+     * helper function for setting up the listviews.
+     * Uses the word model to extract all the relevant information to be displayed to the user.
+     * @param category level for that particular chosen level
+     * @return the words specific for that level
+     */
     private ObservableList<String> fillList(String category){
         ObservableList<String> words = FXCollections.observableArrayList();
         Level level = _model.getLevel(category);
@@ -155,6 +177,10 @@ public class FileChooserScene {
         return words;
     }
 
+    /**
+     * helper function to set event handlers for the hyperlinks.
+     * @param link hyperlink of a level
+     */
     private void setAction(Hyperlink link){
         link.setOnAction(e -> {
             ObservableList<String> wordsList = fillList(link.getText());
@@ -162,7 +188,11 @@ public class FileChooserScene {
         });
     }
 
+    /**
+     * helper function to set up the event handlers
+     */
     private void setEventHandlers(){
+        //opens up the FileChooser to let the user select their custom files
         _newListButton.setOnAction(e -> {
             _buttonSound.stop();
             _buttonSound.play();
@@ -170,9 +200,12 @@ public class FileChooserScene {
 
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Choose a Spelling List");
+            //filter only the .txt files
             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
 
             File selectedFile = fileChooser.showOpenDialog(mainStage);//pass reference to window
+            //if the user has selected a valid file, recreate the wordmodel and set that new spelling list
+            //as the current spelling list and refresh the window with the new spelling list.
             if (selectedFile != null) {
                 String fileName = selectedFile.getName();
                 String filePath = selectedFile.getPath();
@@ -188,10 +221,14 @@ public class FileChooserScene {
             }
 
         });
+        //creates handlers for the combobox.
+        //when the user selects a different spelling list, then recreate the wordmodel with
+        //the new spelling list. All the relevant statistics will be preserved
         _listCombo.setOnAction(e->{
             String spellingList = _listCombo.getSelectionModel().getSelectedItem();
-            _model.saveData();
-            _model.newList(spellingList);
+            _model.saveData();//save the data before changing to a new list
+            _model.newList(spellingList);//set the  wordmodel to a new list.
+            //refresh the window with the new model
             setComboBoxLayout();
             setViewListLayout();
             _mainLayout.setTop(_comboBoxLayout);
@@ -199,10 +236,13 @@ public class FileChooserScene {
             setEventHandlers();
         });
 
+        //custom list creator creates a list creator scene for the user to make his custom list
         _createListButton.setOnAction(e->{
             _buttonSound.stop();
             _buttonSound.play();
             ListCreatorScene customList = new ListCreatorScene(_model.getMasterModel(), _model);
+            //using the new custom list, if the new list is valid then replace the word model
+            //with the new custom list and refresh the window.
             if(customList.display()){
                 setComboBoxLayout();
                 setViewListLayout();
@@ -214,6 +254,11 @@ public class FileChooserScene {
         });
     }
 
+    /**
+     * helepr function for creating sound effects
+     * @param address address of sound file
+     * @return media player of sound file
+     */
     protected MediaPlayer createSound(String address){
         final URL resource = getClass().getResource(address);
         final Media media = new Media(resource.toString());

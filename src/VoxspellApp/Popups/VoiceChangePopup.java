@@ -1,5 +1,6 @@
 package VoxspellApp.Popups;
 
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,6 +14,10 @@ import models.Festival;
 
 /**
  * Created by edson on 21/09/16.
+ * popupwindow prompted by the menu's voice change option.
+ * Sets the voice if the user changes it. It is set by pressing the accept button.
+ * Festival says "meow" so that user hears what the new voice sounds like before actually
+ * accepting the change.
  */
 public class VoiceChangePopup {
     Stage _window;
@@ -23,11 +28,14 @@ public class VoiceChangePopup {
     Button _cancelButton;
 
     String _voiceOption;
-    String _oldVoice;
+    String _oldVoice;//old voice
 
-    ComboBox<String> _voiceCombo;
+    ComboBox<String> _voiceCombo;//voice options
 
 
+    /**
+     * initializes all stylizing and layouts.
+     */
     public VoiceChangePopup(){
         _window = new Stage();
         _window.initModality(Modality.APPLICATION_MODAL);//modality for suppressing main window
@@ -42,6 +50,7 @@ public class VoiceChangePopup {
 
         _oldVoice = Festival._getVoice();
         _voiceCombo = new ComboBox<>();
+        //gets the relevant voice options available from festival
         for(String voice: Festival.getVoiceList()){
             _voiceCombo.getItems().add(voice);
         }
@@ -56,7 +65,7 @@ public class VoiceChangePopup {
         _applyButton.setMinWidth(70);
         _applyButton.setStyle("-fx-background-radius: 10 10 10 10");
 
-        _cancelButton = new Button("Cancel");
+        _cancelButton = new Button("Back");
         _cancelButton.setMinWidth(70);
         _cancelButton.setStyle("-fx-background-radius: 10 10 10 10");
 
@@ -75,26 +84,50 @@ public class VoiceChangePopup {
         _window.showAndWait();
     }
 
-    public void setupEventHandlers(){
+    /**
+     * helper function setting up all the event handlers
+     */
+    private void setupEventHandlers(){
+        //combobox of voice options. lsitens to changes in the new voice options.
+        //if old voice, disable the accept button otherwise enable it.
+        //Festival says something for user to sample the new voice.
         _voiceCombo.setOnAction(e->{
             String option = (String)_voiceCombo.getValue();
             if (!option.equals(_oldVoice)){
                 _voiceOption = option;
                 Festival.changeVoice(option);
-                Festival.festivalTTS("Lets catch some mice!");
+                startFestivalThread("Meow!");
                 Festival.changeVoice(_oldVoice);
                 _applyButton.setDisable(false);
             } else {//same voice option
                 _applyButton.setDisable(true);
             }
         });
+        //apply the new voice on the Festival static class.
         _applyButton.setOnAction(e->{
             Festival.changeVoice(_voiceOption);
             _oldVoice = _voiceOption;
             _applyButton.setDisable(true);
         });
+        //close the window.
         _cancelButton.setOnAction(e->{
             _window.close();
         });
+    }
+
+    /**
+     * background thread to say the word
+     * @param phrase word to be said
+     */
+    private void startFestivalThread(String phrase) {
+        Task festivalTask = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                Festival.festivalTTS(phrase);
+                return null;
+            }
+        };
+
+        new Thread(festivalTask).start();
     }
 }

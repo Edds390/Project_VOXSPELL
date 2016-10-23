@@ -8,6 +8,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -32,6 +33,9 @@ import java.util.Set;
 /**
  * Created by edson on 15/09/16.
  *
+ * Initial scene of the game. Sets all the windows the user will see during the initial phases
+ * of the program, and deals with setting up all the data structures that are relvant to the program.
+ * It is detached with the game itself.
  * responsible for creating and handling interaction with the initial window of the game.
  */
 public class InitialScene {
@@ -56,14 +60,8 @@ public class InitialScene {
     private ToggleButton _resetButton;
     private Button playButton;
     private Button _helpButton;
-    private int _helpStatus;
 
-    private Label tipLabel1;
-    private Label tipLabel2;
-    private Label tipLabel3;
-    private Label tipLabel4;
-    private VBox _newTip = new VBox();
-
+    private int _helpStatus;//status of the help control. based on the int, will show different help tutorial.
     private int _level;
     private Mode _mode = Mode.NEW;
     protected enum Mode{NEW, REVIEW};
@@ -73,6 +71,12 @@ public class InitialScene {
     private ComboBox _voiceOptionCombo;
     private ComboBox<String> listCombo;
 
+    /**
+     * creates an initial scene based on the window and models provided.
+     * Stylizes all the controls.
+     * @param window window to set the initial scene
+     * @param model data structure holding all the relevant information of words
+     */
     public InitialScene(Stage window, WordModel model){
         _model = model;
         _window = window;
@@ -95,6 +99,7 @@ public class InitialScene {
         _mainLayout.setCenter(gameSceneLayout);
         //mainLayout.setRight()
 
+        //set the background image
         BackgroundImage menuBackground = new BackgroundImage(new Image("MediaResources/background.png", 1040, 640, false, true),
                 BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);
         _mainLayout.setBackground(new Background(menuBackground));
@@ -102,6 +107,7 @@ public class InitialScene {
         _mainScene = new Scene(_mainLayout, 1040, 640);
         _mainScene.getStylesheets().add("VoxspellApp/LayoutStyles");//add the css style-sheet to the main menu scene
 
+        //create sound effects
         _toggleButtonSound = createSound("/MediaResources/SoundFiles/264388__magedu__toilet-flushing-button.wav");
         _buttonSound = createSound("/MediaResources/SoundFiles/264447__kickhat__open-button-2.wav");
 
@@ -110,6 +116,11 @@ public class InitialScene {
 
     }
 
+    /**
+     * creates the sound effects helper function
+     * @param address address of the .wav file
+     * @return media player wrapping the wav file
+     */
     protected MediaPlayer createSound(String address){
         final URL resource = getClass().getResource(address);
         final Media media = new Media(resource.toString());
@@ -117,6 +128,12 @@ public class InitialScene {
         return _mediaPlayer;
     }
 
+    /**
+     * creates the scene based on the information from the constructor.
+     * Returns the scene to be set.
+     * Also plays the relevant media.
+     * @return
+     */
     @SuppressWarnings("fallthrough")
     public Scene createScene(){
         //https://www.freesound.org/people/jmggs@hotmail.com/sounds/195355/
@@ -175,6 +192,7 @@ public class InitialScene {
         if (caption.equals("NEW")){
             newButton.setSelected(true);
         }
+        //glow effects
         newButton.setOnMouseEntered(e->{
             DropShadow glow = new DropShadow();
             glow.setRadius(30);
@@ -206,6 +224,7 @@ public class InitialScene {
         levelLabel.setAlignment(Pos.CENTER);
         GridPane.setConstraints(levelLabel, 0, 0);
 
+        //set up the level buttons
         for(int i = 1; i<12; i++){
             Label space = new Label("  ");
             GridPane.setConstraints(space, i, 0);
@@ -232,7 +251,7 @@ public class InitialScene {
         _voiceOptionCombo.setOnAction(event -> {
             String option = (String)_voiceOptionCombo.getValue();
             Festival.changeVoice(option);
-            Festival.festivalTTS("Hi, are you ready to catch some mice?");
+            startFestivalThread("Meow");
         });
         GridPane.setConstraints(_voiceOptionCombo, 0, 4);
 
@@ -261,34 +280,19 @@ public class InitialScene {
 
     }
 
-    private void setUpReviewToolTip() {
-        _newTip.getChildren().removeAll(tipLabel1,tipLabel2,tipLabel3,tipLabel4);
-        tipLabel1 = new Label("Tool Tip:");
-        tipLabel2 = new Label("This is the Review Spelling Quiz. Here we test you on any words you have failed in each level");
-        tipLabel3 = new Label("Please pick a level and then press PLAY to start that level. If all levels are locked, then");
-        tipLabel4 = new Label("you need to attempt a spelling quiz before coming back here");
-        _newTip.getChildren().addAll(tipLabel1,tipLabel2,tipLabel3,tipLabel4);
 
-    }
-
-    private void setUpNewToolTip() {
-        _newTip.getChildren().removeAll(tipLabel1,tipLabel2,tipLabel3,tipLabel4);
-        tipLabel1 = new Label("Tool Tip:");
-        tipLabel2 = new Label("This is the New Spelling Quiz. Here we test you on 10 words from each corresponding level");
-        tipLabel3 = new Label("Please pick a level and then press PLAY to start that level. If you wish to change the voice,");
-        tipLabel4 = new Label("click the drop down menu next to voice and then pick your voice");
-        _newTip.getChildren().addAll(tipLabel1,tipLabel2,tipLabel3,tipLabel4);
-    }
-
-    public Button getPlayButton(){
-        return playButton;
-    }
-
+    /**
+     * helper function to create the level buttons
+     * @param maxLevel max level available in the spelling list
+     * @param gameGrid the grid pane that stores the levels
+     * @return togglegroup containing all the levels
+     */
     private ToggleGroup setLevelButtons(int maxLevel, GridPane gameGrid){
         HBox levelHBox = new HBox();
         levelHBox.setSpacing(5);
         ToggleGroup levelGroup = new ToggleGroup();
         boolean reviewExists = false;
+        //loop through all the levels and create buttons
         for (int i = 1; i <maxLevel+1 ; i++){
             ToggleButton levelButton = new ToggleButton();
             levelButton.setPrefHeight(50);
@@ -302,6 +306,7 @@ public class InitialScene {
                 _toggleButtonSound.play();
                 _model.updateLevel(Integer.parseInt(levelButton.getText()));
             });
+            //glow effects stylzing
             levelButton.setOnMouseEntered(e->{
                 DropShadow glow = new DropShadow();
                 glow.setRadius(18);
@@ -322,10 +327,11 @@ public class InitialScene {
             //    levelButton.setDisable(true);
             //}
 
+            //if review function then disable the button if there are no failed list
             if (_review) {
                 if (_model.getLevel(i-1).getFailedList().size() == 0) {
                     levelButton.setDisable(true);
-                } else if (!reviewExists) {
+                } else if (!reviewExists) {//otherwise enable the level button
                     reviewExists = true;
                     levelButton.setSelected(true);
                     _model.updateLevel(i);
@@ -343,6 +349,7 @@ public class InitialScene {
             playButton.setDisable(false);
         }
 
+        //set the default level to 1 otherwise choose based on user selection
         levelGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
             public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
@@ -358,7 +365,11 @@ public class InitialScene {
         return levelGroup;
     }
 
+    /**
+     * helper function to set up all the event handlers.
+     */
     private void setupEventHandlers(){
+        //new game scene sets the game functioanltiy to normal game
         _newGameButton.setOnAction(event -> {
             _helpStatus=0;
             _toggleButtonSound.stop();
@@ -367,6 +378,7 @@ public class InitialScene {
             _mainLayout.setCenter(setGameScene());
             _mode=Mode.NEW;
         });
+        //review game scene sets game functionality to review game
         _reviewGameButton.setOnAction(event -> {
             _helpStatus=1;
             _toggleButtonSound.stop();
@@ -375,6 +387,8 @@ public class InitialScene {
             _mainLayout.setCenter(setGameScene());
             _mode=Mode.REVIEW;
         });
+        //switch the statistics to statistics scene by creating a StatisticsScene
+        //and replacing the centre scene with stats
         _statisticsButton.setOnAction(event -> {
             _helpStatus=2;
             _toggleButtonSound.stop();
@@ -382,6 +396,8 @@ public class InitialScene {
             StatisticsScene graphScene = new StatisticsScene(_model);
             _mainLayout.setCenter(graphScene.createScene());//set center pane to the StatisticsScene's layout node
         });
+        //switch the centre scene to view words scene where user can change the file or
+        //make their own one.
         _viewWordsButton.setOnAction(event -> {
             _helpStatus=3;
             _toggleButtonSound.stop();
@@ -390,10 +406,16 @@ public class InitialScene {
             _mainLayout.setCenter(chooserScene.getLayout());
         });
 
+        //switch the centre scene to a clear history functionality.
+        //here, the user can clear the history for that particular spelling list.
+        //this means all the relevant statistics are cleared and the user is essentially
+        //playing a new game for that spelling list.
         _resetButton.setOnAction(event -> {
             _helpStatus=4;
+            //sfx
             _toggleButtonSound.stop();
             _toggleButtonSound.play();
+            //set stylizing and layouts.
             final VBox resetVbox = new VBox(20);
             resetVbox.setPadding(new Insets(40,50,40,40));
             resetVbox.setAlignment(Pos.TOP_CENTER);
@@ -413,6 +435,7 @@ public class InitialScene {
             Button confirmButton = new Button("Clear History");
             confirmButton.setStyle("-fx-font: bold 15 arial; -fx-background-radius: 10 10 10 10");
 
+            //recreate the word model by resetting all its statistics data for that spelling list
             confirmButton.setOnAction(e->{
                 _buttonSound.stop();
                 _buttonSound.play();
@@ -422,6 +445,7 @@ public class InitialScene {
             resetVbox.getChildren().addAll(title,  rsImageContainer,caption1,caption2,caption3, confirmButton, caption4);
             _mainLayout.setCenter(resetVbox);
         });
+        //glow effects
         playButton.setOnMouseEntered(e->{
             DropShadow glow = new DropShadow();
             glow.setRadius(40);
@@ -431,6 +455,8 @@ public class InitialScene {
         playButton.setOnMouseExited(e->{
             playButton.setEffect(null);
         });
+        //switches the whole initial scene to the spelling quiz scene where the actual game is played.
+        //uses all the relevant data that is set prior.
         playButton.setOnAction(event ->{
             _mediaPlayer.stop();
             _buttonSound.stop();
@@ -449,10 +475,28 @@ public class InitialScene {
             setupEventHandlers();
 
         });
+        //help button displays the help window using the status of the help, represented
+        //by ints.
         _helpButton.setOnAction(e->{
             HelpWindow help = new HelpWindow(_helpStatus);
             help.display();
         });
+    }
+
+    /**
+     * background thread for saying a phrase via tts
+     * @param phrase word to be said
+     */
+    private void startFestivalThread(String phrase) {
+        Task festivalTask = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                Festival.festivalTTS(phrase);
+                return null;
+            }
+        };
+
+        new Thread(festivalTask).start();
     }
 
 

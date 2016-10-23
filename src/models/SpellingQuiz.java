@@ -8,6 +8,11 @@ import java.util.List;
 
 /**
  * Created by ratterz on 16/09/16.
+ * Represents the spelling quiz abstraction and handles all the logic that is
+ * required for a spelling quiz. Tied with the spelling quiz scene.
+ * Master: right first try
+ * Faulted: right second try
+ * Failed: wrong
  */
 public class SpellingQuiz {
 
@@ -28,25 +33,36 @@ public class SpellingQuiz {
         _quizScene = scene;
     }
 
+    /**
+     * Sets up the type of spelling quiz that is to be tested:
+     * review: uses failed words
+     * @param wordModel used to collect the relevant data
+     * @param review if true then use failed words from word model
+     */
     public void setUpSpellingQuiz(WordModel wordModel, boolean review) {
         this._wordModel = wordModel;
-        _finished = false;
-        _setUpFlag = false;
-        _attemptFlag = false;
-        _position = 0;
-        _review = review;
-        _failedWordsToMove = new ArrayList<Word>();
-        _spellingList = _wordModel.getSpellingList(_review);
-        _quizScene.addCircles(_spellingList.size());
-        _phrase = "";
+        _finished = false;//word list has been finished
+        _setUpFlag = false;//initial start up logic
+        _attemptFlag = false;//used for faulted logic
+        _position = 0;//position in wordlist
+        _review = review;//mode of the review
+        _failedWordsToMove = new ArrayList<Word>();//the list of failed words by the user
+        _spellingList = _wordModel.getSpellingList(_review);//list to be tested
+        _quizScene.addCircles(_spellingList.size());//progress bar
+        _phrase = "";//word to be said via tts
         spellingLogic("");
     }
 
+    /**
+     * Uses the input genereated from the textfield that is inputted by the user in
+     * the spelling quiz scene. Using this, compares with the correct spelling and
+     * handles the logic necessary.
+     * @param userinput the word that the user has spelled
+     */
     public void spellingLogic(String userinput) {
         if (!_setUpFlag) {
-            _phrase = "Please Spell " + _spellingList.get(_position).getWord();
-            System.out.println(_phrase);
-            startFestivalThread(_phrase);
+            _phrase = "Please Spell " + _spellingList.get(_position).getWord();//phrase: word that is said by the program.
+            startFestivalThread(_phrase);//assigns festival to say it
             _setUpFlag = true;
             _status = Status.Unseen;
             return;
@@ -61,7 +77,7 @@ public class SpellingQuiz {
                 _position++;
                 _status = Status.Mastered;
             } else {
-                _phrase = "Incorrect . Please Try Again . " + _spellingList.get(_position).getWord() + " . " +  _spellingList.get(_position).getWord();
+                _phrase = "Incorrect . Please Try Again ... " + _spellingList.get(_position).getWord() + " ... " +  _spellingList.get(_position).getWord();
                 startFestivalThread(_phrase);
                 System.out.println(_phrase);
                 _attemptFlag = true;
@@ -69,13 +85,13 @@ public class SpellingQuiz {
                 return;
             }
         } else {
-            //correct on second try
+            //correct on second try: faulted
             if (_spellingList.get(_position).compareWords(userinput)) {
                 _phrase = "Correct .";
                 _spellingList.get(_position).countUp(Status.Faulted);
                 _status = Status.Faulted;
             } else {
-                //incorrect on both tries
+                //incorrect on both tries: failed
                 _phrase = "Incorrect .";
                 _spellingList.get(_position).countUp(Status.Failed);
                 if (!_review) {
@@ -88,12 +104,12 @@ public class SpellingQuiz {
         }
 
 
-
-        if (_position < _spellingList.size()) {
+        //checks if the user has spelled all words given by the system. if yes, stores the faild list of words to the level
+        if (_position < _spellingList.size()) {//user hasnt finished
             _phrase = _phrase + " Please Spell " + _spellingList.get(_position).getWord();
             startFestivalThread(_phrase);
             System.out.println(_phrase);
-        } else {
+        } else {//user has finished
             startFestivalThread(_phrase);
             if (_review) {
                 for (Word word : _failedWordsToMove) {
@@ -116,6 +132,10 @@ public class SpellingQuiz {
         return this._finished;
     }
 
+    /**
+     * background thread for the festival to say the word.
+     * @param phrase the phrase that is to be said by tts
+     */
     private void startFestivalThread(String phrase) {
         _festivalTask = new Task() {
             @Override
@@ -129,11 +149,13 @@ public class SpellingQuiz {
             _quizScene.endThreadState();
         });
 
-        _quizScene.startThreadState();
         new Thread(_festivalTask).start();
     }
 
 
+    /**
+     * repeats the word to the user
+     */
     public void repeatWord() {
         startFestivalThread(_spellingList.get(_position).getWord());
     }

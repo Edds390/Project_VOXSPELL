@@ -33,7 +33,7 @@ import java.nio.file.Paths;
 
 /**
  * Created by edson on 18/09/16.
- * Creates a media player popup window.
+ * Creates a media player popup window used to play the video reward.
  */
 public class VideoPlayer {
     private MediaPlayer _player;
@@ -221,6 +221,11 @@ public class VideoPlayer {
 
     }
 
+    /**
+     * button creator helper function
+     * @param imagePath path of the icon to be set on button
+     * @return button stylized
+     */
     private Button createButton(String imagePath){
         Button button = new Button();
         Image icon = new Image(imagePath, 15, 15, false, true);
@@ -232,6 +237,9 @@ public class VideoPlayer {
         return button;
     }
 
+    /**
+     * updates the time progress in the menu interface
+     */
     private void update(){
         Platform.runLater(new Runnable() {
             @Override

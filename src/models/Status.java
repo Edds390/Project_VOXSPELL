@@ -2,6 +2,11 @@ package models;
 
 /**
  * Created by edson on 15/09/16.
+ * Enum class representing the status of the word. Used by the Word data structure.
+ * Master: right first try
+ * Faulted: right second try
+ * Failed: no right
+ * Enum is associated with integers for identification pruposes.
  */
 public enum Status {
     Mastered(2),
