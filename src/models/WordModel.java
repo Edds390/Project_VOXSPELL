@@ -1,14 +1,11 @@
 package models;
 
-import VoxspellApp.ConfirmQuitBox;
-import VoxspellApp.Voxspell;
+import VoxspellApp.Popups.ConfirmQuitBox;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

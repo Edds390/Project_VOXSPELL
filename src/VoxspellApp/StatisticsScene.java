@@ -1,5 +1,6 @@
 package VoxspellApp;
 
+import VoxspellApp.Popups.HelpWindow;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -32,9 +33,6 @@ import models.Word;
 import models.WordModel;
 //import models.GraphFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observable;
 
 /**
  * Created by edson on 15/09/16.

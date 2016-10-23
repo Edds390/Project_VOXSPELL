@@ -1,5 +1,7 @@
 package VoxspellApp;
 
+import VoxspellApp.Popups.*;
+import VoxspellApp.StartScenes.InitialScene;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -19,12 +21,10 @@ import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import models.Festival;
 import models.SpellingQuiz;
 import models.Status;
 import models.WordModel;
@@ -115,12 +115,12 @@ public class SpellingQuizScene {
      * @param wordModel
      */
     public SpellingQuizScene(WordModel wordModel, Stage window, boolean review) {
-        final URL resource = getClass().getResource("/MediaResources/264447__kickhat__open-button-2.wav");
+        final URL resource = getClass().getResource("/MediaResources/SoundFiles/264447__kickhat__open-button-2.wav");
         final Media media = new Media(resource.toString());
         _buttonSound = new MediaPlayer(media);
 
-        _rewardSound = bgm("/MediaResources/353543__maxmakessounds__happy-theme.wav");
-        _failedSound = bgm("/MediaResources/Meow.m4a");
+        _rewardSound = bgm("/MediaResources/SoundFiles/353543__maxmakessounds__happy-theme.wav");
+        _failedSound = bgm("/MediaResources/SoundFiles/Meow.m4a");
         //set the functionality of the help button
         _helpButton.setStyle("-fx-font: bold 30 latoheavy; -fx-base: #1db361; " +
                 "-fx-background-radius: 40 40 40 40; -fx-text-fill:  white; -fx-border: 20px; -fx-border-color: white; -fx-border-radius: 40");
@@ -151,7 +151,7 @@ public class SpellingQuizScene {
 
         _mainScene = new Scene(_mainLayout, 1040, 640);
         //_mainScene.getStylesheets().add("VoxspellApp/LayoutStyles");
-        final URL resource = getClass().getResource("/MediaResources/bgm.wav");
+        final URL resource = getClass().getResource("/MediaResources/SoundFiles/bgm.wav");
         final Media media = new Media(resource.toString());
         _mediaPlayer = new MediaPlayer(media);
         _mediaPlayer.setOnEndOfMedia(new Runnable() {
@@ -329,13 +329,13 @@ public class SpellingQuizScene {
     private void updateMice(Status status){
 
         if (status.equals(Status.Mastered)){
-            soundEffect("/MediaResources/goodmeow.wav");
+            soundEffect("/MediaResources/SoundFiles/goodmeow.wav");
             miceNum--;
             updateMice();
             //mice number does not decrement as none gets left behind if correct
 
         } else if (status.equals(Status.Faulted)){
-            soundEffect("/MediaResources/333916__thearxx08__cat-meowing.mp3");
+            soundEffect("/MediaResources/SoundFiles/333916__thearxx08__cat-meowing.mp3");
             miceNum--;
             _miceHowMany--;
             updateMice();
@@ -345,7 +345,7 @@ public class SpellingQuizScene {
             GridPane.setConstraints(miceimv,miceNum+1,0);
             _gameArea.getChildren().addAll(miceimv);
         } else if (status.equals(Status.Failed)){
-            soundEffect("/MediaResources/badmeow.wav");
+            soundEffect("/MediaResources/SoundFiles/badmeow.wav");
             miceNum--;
             _miceHowMany--;
             updateMice();
@@ -587,8 +587,6 @@ public class SpellingQuizScene {
         _inputText.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                _buttonSound.stop();
-                _buttonSound.play();
                 if (event.getCode().toString().equals("ENTER")) {
                     //Festival.stopFestivalTTS();
                     submitHandler();
