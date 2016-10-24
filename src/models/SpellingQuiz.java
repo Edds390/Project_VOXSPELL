@@ -79,7 +79,6 @@ public class SpellingQuiz {
             } else {
                 _phrase = "Incorrect . Please Try Again ... " + _spellingList.get(_position).getWord() + " ... " +  _spellingList.get(_position).getWord();
                 startFestivalThread(_phrase);
-                System.out.println(_phrase);
                 _attemptFlag = true;
                 _status = Status.Unseen;
                 return;
@@ -108,7 +107,6 @@ public class SpellingQuiz {
         if (_position < _spellingList.size()) {//user hasnt finished
             _phrase = _phrase + " Please Spell " + _spellingList.get(_position).getWord();
             startFestivalThread(_phrase);
-            System.out.println(_phrase);
         } else {//user has finished
             startFestivalThread(_phrase);
             if (_review) {

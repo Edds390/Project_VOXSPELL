@@ -320,10 +320,10 @@ public class SpellingQuizScene {
         _accuracyArea.setAlignment(Pos.CENTER);
 
         _accuracyTitle.setText("Accuracy");
-        _accuracyTitle.setStyle("-fx-font: bold 20 arial;-fx-text-fill: white");
+        _accuracyTitle.setStyle("-fx-font: bold 23 arial;-fx-text-fill: #ffffff; -fx-background-color: rgb(166, 66, 0)");
 
         _accuracyLabel.setText("---.--%");
-        _accuracyLabel.setStyle("-fx-font: bold 40 arial;-fx-text-fill: #fbb040");
+        _accuracyLabel.setStyle("-fx-font: bold 40 arial;-fx-text-fill: #fbb040;");
 
         _accuracyArea.getChildren().setAll(_accuracyTitle,_accuracyLabel);
     }
