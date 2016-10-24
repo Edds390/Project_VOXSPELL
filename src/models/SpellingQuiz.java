@@ -62,6 +62,7 @@ public class SpellingQuiz {
     public void spellingLogic(String userinput) {
         if (!_setUpFlag) {
             _phrase = "Please Spell " + _spellingList.get(_position).getWord();//phrase: word that is said by the program.
+            _quizScene.startThreadState();
             startFestivalThread(_phrase);//assigns festival to say it
             _setUpFlag = true;
             _status = Status.Unseen;
@@ -77,7 +78,8 @@ public class SpellingQuiz {
                 _position++;
                 _status = Status.Mastered;
             } else {
-                _phrase = "Incorrect . Please Try Again ... " + _spellingList.get(_position).getWord() + " ... " +  _spellingList.get(_position).getWord();
+                _phrase = "Incorrect . Please Try Again ... " + _spellingList.get(_position).getWord() + " .:   :.   . .; " +  _spellingList.get(_position).getWord();
+                _quizScene.startThreadState();
                 startFestivalThread(_phrase);
                 _attemptFlag = true;
                 _status = Status.Unseen;
@@ -106,8 +108,10 @@ public class SpellingQuiz {
         //checks if the user has spelled all words given by the system. if yes, stores the faild list of words to the level
         if (_position < _spellingList.size()) {//user hasnt finished
             _phrase = _phrase + " Please Spell " + _spellingList.get(_position).getWord();
+            _quizScene.startThreadState();
             startFestivalThread(_phrase);
         } else {//user has finished
+            _quizScene.startThreadState();
             startFestivalThread(_phrase);
             if (_review) {
                 for (Word word : _failedWordsToMove) {
@@ -155,6 +159,7 @@ public class SpellingQuiz {
      * repeats the word to the user
      */
     public void repeatWord() {
+        _quizScene.startThreadState();
         startFestivalThread(_spellingList.get(_position).getWord());
     }
 
